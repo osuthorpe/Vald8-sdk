@@ -1,6 +1,6 @@
 # 📘 Vald8 Implementation Guide
 
-This document provides step-by-step implementation instructions for building Vald8 MVP without external dependencies.
+This document provides step-by-step implementation instructions for building Vald8 MVP - **pytest for LLMs**.
 
 ## 🤖 Working with Claude Code
 
@@ -89,15 +89,15 @@ class DatasetExample:
 ## 🎯 Implementation Principles
 
 ### **Core Philosophy**
-Build a library that is maintainable and developer-friendly by applying these patterns:
+Build "pytest for LLMs" - a developer-first testing framework that prioritizes:
 
-1. **Type-First Design** — Strong typing drives API clarity
-2. **Rich Error Context** — Detailed, actionable error messages
-3. **Fail-Fast Validation** — Early detection of problems
-4. **Explicit Serialization** — Clear data conversion patterns  
-5. **Configuration Objects** — Structured settings with validation
-6. **Computed Properties** — Derived values via @property
-7. **Consistent API Surface** — Predictable patterns throughout
+1. **Zero Configuration** — Works out of the box like pytest
+2. **CI-First Design** — Fast, cost-effective, reliable for deployment pipelines  
+3. **Battle-tested Dependencies** — Use Pydantic, httpx, jsonschema rather than rebuilding
+4. **Developer Experience** — Familiar patterns, clear errors, simple data formats
+5. **Community Focus** — Open source, extensible, collaborative development
+6. **Cost Conscious** — Minimize API usage and operational costs
+7. **Clear Pass/Fail** — Simple success criteria for automated testing
 
 ### **Implementation Order**
 
@@ -154,14 +154,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "vald8"
 version = "0.1.0"
-description = "Lightweight LLM evaluation SDK"
+description = "pytest for LLMs - Test your AI functions like regular Python code"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "MIT"}
-authors = [{name = "Your Name", email = "email@example.com"}]
-keywords = ["llm", "evaluation", "testing", "ml", "ai"]
+license = {file = "LICENSE"}
+authors = [{name = "Vald8 Contributors"}]
+keywords = ["llm", "testing", "pytest", "ai", "validation", "ci-cd"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -169,10 +169,15 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 
 dependencies = [
-    "jsonschema>=4.0.0",  # For JSON schema validation only
+    "pydantic>=2.0.0",          # Validation, error handling, serialization
+    "jsonschema>=4.0.0",        # JSON schema validation for output testing
+    "httpx>=0.24.0",            # HTTP client for judge provider APIs
 ]
 
 [project.optional-dependencies]
@@ -184,18 +189,21 @@ dev = [
     "mypy>=1.0.0",
 ]
 
+# Judge providers (all optional)
 openai = ["openai>=1.0.0"]
-anthropic = ["anthropic>=0.5.0"]
+anthropic = ["anthropic>=0.5.0"]  
 bedrock = ["boto3>=1.28.0"]
+all-judges = ["openai>=1.0.0", "anthropic>=0.5.0", "boto3>=1.28.0"]
 
 [project.scripts]
 vald8 = "vald8.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/yourusername/vald8"
-Documentation = "https://vald8.dev"
-Repository = "https://github.com/yourusername/vald8"
+Repository = "https://github.com/yourusername/vald8"  
 Issues = "https://github.com/yourusername/vald8/issues"
+Documentation = "https://github.com/yourusername/vald8#readme"
+Discussions = "https://github.com/yourusername/vald8/discussions"
 ```
 
 ### Main `__init__.py`

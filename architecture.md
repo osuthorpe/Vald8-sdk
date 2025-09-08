@@ -1,31 +1,53 @@
-# 🏗️ Vald8 Architecture & Implementation Specification
+# 🏗️ Vald8 Architecture - "pytest for LLMs"
 
-This document provides the complete technical specification for Vald8 MVP implementation.  
-It serves as the source of truth for contributors and maintainers.
+This document provides the complete technical specification for Vald8: **a developer-first testing framework for LLM functions**.
+
+**Mission**: Make testing LLM functions as simple and reliable as testing regular Python functions with pytest.
 
 ---
 
 ## 🎯 Core Design Principles
 
-### Foundational Principles
-1. **Readable First** — Anyone should understand a module in <5 minutes
-2. **Small Files** — Target <300 lines per file, split early
-3. **Flat Imports** — Public APIs in `__init__.py`, no deep nesting
-4. **Early Returns** — Avoid nested conditionals, fail fast
-5. **Protocol-based** — Use Python protocols for interfaces
-6. **Functional Core** — Pure functions where possible, state at edges
-7. **DRY but Clear** — Reuse without over-abstraction
+### CI-First Principles
+1. **Zero Configuration** — Works out of the box like pytest
+2. **Fast Execution** — Optimized for CI/CD pipeline integration
+3. **Cost Conscious** — Minimize API calls and operational costs  
+4. **Clear Pass/Fail** — Simple success criteria for deployment gates
+5. **Dependency Hygiene** — Use proven libraries, minimize maintenance burden
 
-### Maintainability Patterns
-8. **Type-First Design** — Strong typing with clear interfaces and contracts
-9. **Rich Error Context** — Detailed errors with location, message, type, and context
-10. **Fail-Fast with Details** — Collect validation errors, provide actionable feedback
-11. **Explicit Serialization** — Clean JSON/dict conversion with validation
-12. **Configuration Objects** — Structured config with validation and defaults
-13. **Computed Properties** — Lazy evaluation for derived values
-14. **Layered Validation** — Multiple validation phases with clear responsibilities
-15. **Consistent API Surface** — Predictable method names and return types
-16. **Graceful Degradation** — Continue operation when possible, fail clearly when not
+### Developer Experience 
+6. **Familiar Patterns** — Decorators work like pytest fixtures
+7. **Rich Error Context** — Detailed errors with actionable next steps
+8. **Simple Data Format** — JSONL files that are easy to create and version
+9. **Flexible Functions** — Support any LLM function signature seamlessly
+10. **Community Driven** — Open source, extensible, collaborative development
+
+### Code Quality Standards
+11. **Readable First** — Anyone should understand a module quickly
+12. **Small Files** — Target <300 lines per file, split early  
+13. **Strong Typing** — Full type annotations for better IDE support
+14. **Battle-tested Dependencies** — Pydantic, httpx, jsonschema
+15. **Comprehensive Testing** — High coverage with meaningful scenarios
+
+---
+
+## 📦 Core Dependencies
+
+**Battle-tested libraries for maximum developer productivity:**
+
+```toml
+# Core dependencies 
+pydantic = ">=2.0.0"        # Validation, error handling, serialization
+jsonschema = ">=4.0.0"      # JSON schema validation for output testing  
+httpx = ">=0.24.0"          # HTTP client for judge provider APIs
+
+# Optional judge providers
+openai = ">=1.0.0"          # OpenAI judge (optional)
+anthropic = ">=0.5.0"       # Claude judge (optional) 
+boto3 = ">=1.28.0"          # AWS Bedrock judge (optional)
+```
+
+**Design rationale**: Focus engineering effort on unique LLM testing value, not rebuilding solved problems.
 
 ---
 

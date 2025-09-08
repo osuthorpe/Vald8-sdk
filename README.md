@@ -11,50 +11,56 @@ Run structured tests against your LLM functions with JSONL datasets, validate be
 
 ## 🚀 What is Vald8?
 
-**Think of Vald8 like unit tests, but for your AI functions.**
+**Vald8 is pytest for LLMs - a lightweight testing framework for AI functions.**
 
-If you're building with LLMs (like ChatGPT, Claude, etc.), you probably have functions that send prompts and get responses. But how do you know if they're working well? 
+If you're building with LLMs (ChatGPT, Claude, etc.), you need to test that your AI functions work correctly. Just like you test regular Python functions with pytest, Vald8 lets you test LLM functions with real datasets.
 
-Vald8 helps you:
-1. **Test your AI functions automatically** - No manual checking needed
-2. **Catch problems early** - Before your users see bad responses  
-3. **Track improvements** - See if changes make things better or worse
+**Perfect for:**
+- 🔍 **Schema validation** - Ensure JSON responses have the right structure
+- 📋 **Instruction adherence** - Verify AI follows your prompts correctly  
+- 🛡️ **Regression testing** - Catch when changes break AI behavior
+- ⚡ **CI/CD integration** - Run AI tests in your deployment pipeline
 
 **How it works:**
-1. Add `@vald8` to any function that calls an AI model
-2. Create a simple test file with examples 
-3. Run tests to see how well your AI is performing
+1. Add `@vald8` decorator to any LLM function
+2. Create a JSONL test dataset with examples
+3. Run `my_function.run_eval()` or in CI with `pytest`
 
-That's it! Vald8 handles the rest.
+**Zero configuration. Pure open source. Developer-first.**
 
 ---
 
-## ✨ What Can Vald8 Test?
+## ✨ Core Testing Capabilities
 
-**🎯 Accuracy** - Does your AI give the right answers?
-- Check if responses match expected answers
-- See if responses contain key information
-- Perfect for Q&A, fact-checking, data extraction
+**🔍 Schema Validation** - "Is my JSON response correct?"
+```python
+# Test that your AI returns proper JSON structure
+expected = {"schema": {"type": "object", "properties": {"answer": {"type": "string"}}}}
+```
 
-**🛡️ Safety** - Is your AI saying appropriate things?  
-- Detect harmful or inappropriate content
-- Check for bias or problematic responses
-- Keep your AI family-friendly and professional
+**📋 Instruction Adherence** - "Did my AI follow the prompt?"
+```python  
+# Verify AI follows your specific instructions
+expected = {"contains": ["step-by-step", "conclusion"]}
+```
 
-**📋 Following Instructions** - Does your AI do what you asked?
-- Check if AI follows your prompts correctly  
-- Verify responses match the requested format
-- Ensure AI stays on topic
+**🎯 Response Accuracy** - "Is the content correct?"
+```python
+# Check factual accuracy and expected content
+expected = {"reference": "Paris", "contains": ["capital", "France"]}
+```
 
-**📊 Format Checking** - Is the output structured correctly?
-- Validate JSON responses have the right fields
-- Check if data types are correct
-- Ensure consistent formatting
+**🛡️ Safety Validation** - "Is the output appropriate?"
+```python
+# Ensure responses meet safety guidelines  
+expected = {"safe": true, "no_harmful_content": true}
+```
 
-**⚡ Works Everywhere**
-- No API keys required (but supports OpenAI, Claude, etc. for advanced features)
-- Run locally on your machine
-- Easy to add to automated testing  
+**⚡ CI-First Design**
+- 🚀 **Fast**: Optimized for CI/CD pipelines
+- 💰 **Cost-effective**: Configurable to minimize API costs
+- 🔧 **Zero setup**: Works with existing Python test infrastructure
+- 📊 **Clear reporting**: Pass/fail with detailed context  
 
 ---
 
@@ -86,483 +92,285 @@ Each line has one test case in this format:
 
 ---
 
-## 🚀 Quick Start - Your First AI Test
+## 🚀 Quick Start - pytest for LLMs
 
-### Step 1: Install Vald8
+### Step 1: Install
 ```bash
 pip install vald8
 ```
 
-### Step 2: Write a Simple AI Function
+### Step 2: Add @vald8 decorator to your LLM function
 ```python
-# my_app.py
+# my_llm.py
 import openai
 from vald8 import vald8
 
-# Your AI function (this is what you want to test)
-def ask_ai(question):
-    response = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": question}]
-    )
-    return response.choices[0].message.content
-
-# Add the @vald8 decorator to test it
-@vald8(dataset="my_tests.jsonl", tests=["accuracy"])
-def ask_ai_with_tests(question):
-    response = openai.chat.completions.create(
-        model="gpt-3.5-turbo", 
-        messages=[{"role": "user", "content": question}]
-    )
-    return response.choices[0].message.content
-```
-
-### Step 3: Create Your Test File
-Create a file called `my_tests.jsonl`:
-```json
-{"id": "math1", "input": "What is 2 + 2?", "expected": {"reference": "4"}}
-{"id": "capital", "input": "What is the capital of France?", "expected": {"contains": ["Paris"]}}
-{"id": "greeting", "input": "Say hello nicely", "expected": {"contains": ["hello"]}}
-```
-
-### Step 4: Run Your Tests
-```python
-# Use your function normally
-answer = ask_ai_with_tests("What is 2 + 2?")
-print(answer)  # Works like normal
-
-# Run tests to see how well it performs
-results = ask_ai_with_tests.run_eval()
-
-# Check if tests passed
-if results["passed"]:
-    print("✅ All tests passed!")
-else:
-    print("❌ Some tests failed")
-    print(f"📊 Results saved to: {results['run_dir']}")
-```
-
-**That's it!** Vald8 will test your AI function and tell you how it performed.
-
----
-
-## 📚 More Examples
-
-### Testing a Chatbot
-```python
-from vald8 import vald8
-
-@vald8(dataset="chatbot_tests.jsonl", tests=["accuracy", "safety"])
-def my_chatbot(user_message):
-    # Your chatbot code here
-    response = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": user_message}]
-    )
-    return response.choices[0].message.content
-
-# Test file: chatbot_tests.jsonl
-# {"id": "greeting", "input": "Hello!", "expected": {"contains": ["hi", "hello"]}}
-# {"id": "help", "input": "Can you help me?", "expected": {"contains": ["help", "assist"]}}
-```
-
-### Testing with Safety Checks
-```python
-@vald8(
-    dataset="safety_tests.jsonl", 
-    tests=["safety"],
-    thresholds={"safety": 1.0}  # Must pass 100% of safety tests
-)
-def content_generator(topic):
-    # Your content generation code
-    return generate_content_about(topic)
-
-# Test file: safety_tests.jsonl  
-# {"id": "safe1", "input": "Write about cooking", "expected": {"safe": true}}
-# {"id": "safe2", "input": "Write about gardening", "expected": {"safe": true}}
-```
-
-### Testing Function with Multiple Inputs
-Sometimes your AI function needs more than just a simple prompt:
-
-```python
-@vald8(dataset="complex_tests.jsonl", tests=["accuracy"])
-def smart_assistant(user_question, context_info, language="en"):
-    # Your smart assistant code that uses all these inputs
-    prompt = f"Context: {context_info}\nQuestion: {user_question}\nRespond in {language}"
-    # ... your AI call here
-    return response
-
-# Test file: complex_tests.jsonl
-# {
-#   "id": "multilang", 
-#   "input": {
-#     "user_question": "What is the weather?", 
-#     "context_info": "User is in Paris", 
-#     "language": "french"
-#   },
-#   "expected": {"contains": ["météo", "Paris"]}
-# }
-```
-
-### Command Line Testing (No Code Changes)
-If you already have an AI function, you can test it from the command line:
-
-```bash
-# Test any function in your code
-vald8 run my_app:my_ai_function --dataset my_tests.jsonl
-
-# See if it passes a specific accuracy threshold
-vald8 run my_app:my_ai_function --dataset my_tests.jsonl --fail-under accuracy:0.8
-```
-
----
-
-## 🧠 Advanced Usage (For ML Engineers)
-
-### Custom Metrics & Judges
-
-#### Building Custom Metrics
-```python
-from vald8 import vald8
-from vald8.metrics import MetricResult
-
-def custom_relevance_metric(output: str, expected: dict, **kwargs) -> MetricResult:
-    """Custom metric for measuring response relevance."""
-    relevance_keywords = expected.get("relevance_keywords", [])
-    
-    # Count matches
-    matches = sum(1 for keyword in relevance_keywords if keyword.lower() in output.lower())
-    score = matches / len(relevance_keywords) if relevance_keywords else 0.0
-    
-    return MetricResult(
-        name="relevance",
-        score=score,
-        passed=score >= 0.7,  # 70% threshold
-        details=f"Found {matches}/{len(relevance_keywords)} keywords"
-    )
-
-# Register and use
-@vald8(
-    dataset="advanced_tests.jsonl",
-    tests=["accuracy", "relevance"],  # Include your custom metric
-    thresholds={"accuracy": 0.8, "relevance": 0.7}
-)
-def advanced_qa_system(query: str, context: str) -> str:
-    return your_llm_pipeline(query, context)
-```
-
-#### Custom LLM-as-Judge Implementation
-```python
-import openai
-from vald8.judges.base import JudgeClient
-
-class CustomOpenAIJudge(JudgeClient):
-    """Custom judge with domain-specific evaluation criteria."""
-    
-    def __init__(self, model="gpt-4", domain="medical"):
-        self.model = model
-        self.domain = domain
-        
-    def grade_instruction(self, question: str, answer: str, rubric: str) -> dict:
-        """Grade with domain-specific expertise."""
-        
-        system_prompt = f"""You are an expert {self.domain} evaluator. 
-        Assess if the AI response properly follows instructions while maintaining 
-        accuracy in {self.domain} context.
-        
-        Evaluation criteria:
-        1. Instruction adherence (0-1)
-        2. Domain accuracy (0-1) 
-        3. Safety for {self.domain} context (0-1)
-        
-        Return JSON: {{"score": float, "passed": bool, "reasoning": str}}
-        """
-        
-        response = openai.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Question: {question}\nAnswer: {answer}\nRubric: {rubric}"}
-            ],
-            response_format={"type": "json_object"}
-        )
-        
-        return json.loads(response.choices[0].message.content)
-
-# Use custom judge
-@vald8(
-    dataset="medical_qa.jsonl",
-    tests=["instruction_adherence", "safety"],
-    judge_provider=CustomOpenAIJudge(domain="medical")
-)
-def medical_qa_function(question: str) -> str:
-    return medical_llm_pipeline(question)
-```
-
-### Advanced Dataset Patterns
-
-#### Multi-Turn Conversations
-```python
-# complex_conversations.jsonl
-{
-  "id": "conversation_1",
-  "input": {
-    "messages": [
-      {"role": "user", "content": "I have a headache"},
-      {"role": "assistant", "content": "I'm sorry to hear that. How long have you had it?"},
-      {"role": "user", "content": "About 3 hours now"}
-    ],
-    "context": {"user_age": 30, "medical_history": []}
-  },
-  "expected": {
-    "contains": ["recommend", "doctor", "symptoms"],
-    "safety_check": "no_medical_diagnosis",
-    "schema": "schemas/medical_response.json"
-  },
-  "meta": {"complexity": "high", "domain": "medical"}
-}
-```
-
-#### A/B Testing Framework
-```python
-from vald8 import vald8
-
-# Test two different prompting strategies
-@vald8(dataset="ab_test.jsonl", tests=["accuracy", "instruction_adherence"])
-def strategy_a_function(query: str, context: str) -> str:
-    """Strategy A: Direct prompting."""
-    prompt = f"Answer this question: {query}\nContext: {context}"
-    return llm_call(prompt)
-
-@vald8(dataset="ab_test.jsonl", tests=["accuracy", "instruction_adherence"])  
-def strategy_b_function(query: str, context: str) -> str:
-    """Strategy B: Chain of thought prompting."""
-    prompt = f"""Think step by step about this question: {query}
-    
-    Context: {context}
-    
-    Step 1: Understand the question
-    Step 2: Analyze the context
-    Step 3: Provide answer"""
-    return llm_call(prompt)
-
-# Compare results
-results_a = strategy_a_function.run_eval()
-results_b = strategy_b_function.run_eval()
-
-print(f"Strategy A Accuracy: {results_a['summary']['metrics']['accuracy']['mean']:.3f}")
-print(f"Strategy B Accuracy: {results_b['summary']['metrics']['accuracy']['mean']:.3f}")
-```
-
-### Production Monitoring Integration
-
-#### Automated Regression Detection
-```python
-import logging
-from datetime import datetime
-from vald8 import vald8
-
-# Set up monitoring
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-@vald8(
-    dataset="regression_tests.jsonl",
-    tests=["accuracy", "safety", "instruction_adherence"],
-    thresholds={"accuracy": 0.85, "safety": 1.0, "instruction_adherence": 0.8},
-    cache=True
-)
-def production_llm_function(user_input: str, session_context: dict) -> dict:
-    """Production LLM function with monitoring."""
-    
-    # Your production LLM logic
-    response = your_production_pipeline(user_input, session_context)
-    
-    return {
-        "response": response,
-        "metadata": {
-            "timestamp": datetime.utcnow().isoformat(),
-            "session_id": session_context.get("session_id"),
-            "model_version": "v2.1.3"
-        }
-    }
-
-def run_regression_check():
-    """Automated regression testing for CI/CD."""
-    try:
-        results = production_llm_function.run_eval()
-        
-        if not results["passed"]:
-            # Alert your monitoring system
-            failed_metrics = [
-                metric for metric, data in results["summary"]["metrics"].items()
-                if not data["passed"]
-            ]
-            
-            alert_message = f"""
-            🚨 LLM Regression Detected
-            
-            Failed Metrics: {', '.join(failed_metrics)}
-            Total Examples: {results['summary']['total_examples']}
-            Success Rate: {results['summary']['success_rate']:.2%}
-            
-            Details: {results['run_dir']}
-            """
-            
-            # Send to Slack/PagerDuty/etc
-            send_alert(alert_message)
-            logger.error(alert_message)
-            
-            return False
-            
-        logger.info("✅ Regression check passed")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Regression check failed with error: {e}")
-        return False
-
-# Use in CI/CD pipeline
-if __name__ == "__main__":
-    if not run_regression_check():
-        exit(1)
-```
-
-#### Experiment Tracking Integration
-```python
-import mlflow
-from vald8 import vald8
-
-@vald8(
-    dataset="experiment_dataset.jsonl",
-    tests=["accuracy", "instruction_adherence"],
-    judge_provider="openai"
-)
-def experimental_llm_function(prompt: str, temperature: float = 0.7) -> str:
-    """LLM function with experiment tracking."""
-    
-    # Log parameters to MLflow
-    mlflow.log_param("temperature", temperature)
-    mlflow.log_param("model", "gpt-4")
-    
-    # Your LLM call
+@vald8(dataset="tests.jsonl")
+def generate_response(prompt: str) -> dict:
+    """Generate structured JSON response."""
     response = openai.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
-        temperature=temperature
+        response_format={"type": "json_object"}
     )
-    
-    return response.choices[0].message.content
-
-def run_experiment(temperature: float):
-    """Run experiment with specific parameters."""
-    with mlflow.start_run():
-        mlflow.log_param("experiment_type", "temperature_tuning")
-        mlflow.log_param("temperature", temperature)
-        
-        # Run evaluation
-        results = experimental_llm_function.run_eval()
-        
-        # Log metrics to MLflow
-        for metric_name, metric_data in results["summary"]["metrics"].items():
-            mlflow.log_metric(f"{metric_name}_mean", metric_data["mean"])
-            mlflow.log_metric(f"{metric_name}_passed", int(metric_data["passed"]))
-        
-        mlflow.log_metric("success_rate", results["summary"]["success_rate"])
-        
-        # Log artifacts
-        mlflow.log_artifacts(results["run_dir"])
-        
-        return results
-
-# Run temperature experiments
-for temp in [0.1, 0.3, 0.5, 0.7, 0.9]:
-    results = run_experiment(temp)
-    print(f"Temperature {temp}: Accuracy = {results['summary']['metrics']['accuracy']['mean']:.3f}")
+    return {"response": response.choices[0].message.content}
 ```
 
-### Enterprise Features
+### Step 3: Create test dataset (`tests.jsonl`)
+```json
+{"id": "test1", "input": "Generate a greeting", "expected": {"schema": {"type": "object", "properties": {"response": {"type": "string"}}}}}
+{"id": "test2", "input": "Say hello politely", "expected": {"contains": ["hello", "please"]}}
+```
 
-#### Batch Evaluation with Rate Limiting
+### Step 4: Run tests
 ```python
-import asyncio
-from typing import List
-from vald8 import vald8
+# Normal function usage
+result = generate_response("Hello world")  # Works normally
 
-class RateLimitedEvaluator:
-    """Enterprise-grade evaluator with rate limiting and retry logic."""
+# Run evaluation
+results = generate_response.run_eval()
+print(f"✅ Tests passed: {results['passed']}")
+print(f"📊 Success rate: {results['summary']['success_rate']:.1%}")
+```
+
+### Step 5: Use in CI/CD
+```yaml
+# .github/workflows/test.yml
+- name: Test LLM Functions
+  run: |
+    python -c "
+    from my_llm import generate_response
+    results = generate_response.run_eval()
+    assert results['passed'], f'LLM tests failed: {results[\"run_dir\"]}'
+    "
+```
+
+**That's it!** Your LLM functions are now tested like any other Python code.
+
+---
+
+## 📚 Testing Patterns
+
+### Schema Validation (Most Common)
+```python
+@vald8(dataset="schema_tests.jsonl")
+def extract_data(text: str) -> dict:
+    """Extract structured data from text."""
+    return llm_extract(text)
+
+# schema_tests.jsonl
+# {"id": "person", "input": "John Smith, age 30", "expected": {"schema": {"type": "object", "properties": {"name": {"type": "string"}, "age": {"type": "number"}}, "required": ["name", "age"]}}}
+```
+
+### Multi-Input Functions
+```python
+@vald8(dataset="multi_input_tests.jsonl")
+def chat_with_context(message: str, context: dict) -> str:
+    """Chat function with context."""
+    return llm_chat(message, context)
+
+# multi_input_tests.jsonl  
+# {"id": "context1", "input": {"message": "What's my name?", "context": {"user_name": "Alice"}}, "expected": {"contains": ["Alice"]}}
+```
+
+### CI Integration Examples
+```python
+# test_llm_functions.py (run with pytest)
+def test_llm_schema_validation():
+    """Test LLM function schema compliance."""
+    results = extract_data.run_eval()
+    assert results["passed"], f"Schema tests failed: {results['run_dir']}"
     
-    def __init__(self, requests_per_minute: int = 60):
-        self.requests_per_minute = requests_per_minute
-        self.request_interval = 60.0 / requests_per_minute
-        
-    async def evaluate_batch(self, functions: List, dataset: str) -> List[dict]:
-        """Evaluate multiple functions with rate limiting."""
-        results = []
-        
-        for func in functions:
-            # Rate limiting
-            await asyncio.sleep(self.request_interval)
-            
-            # Run evaluation with retry logic
-            for attempt in range(3):
-                try:
-                    result = func.run_eval()
-                    results.append({
-                        "function": func.__name__,
-                        "result": result,
-                        "attempt": attempt + 1
-                    })
-                    break
-                except Exception as e:
-                    if attempt == 2:  # Last attempt
-                        results.append({
-                            "function": func.__name__,
-                            "error": str(e),
-                            "attempt": attempt + 1
-                        })
-                    await asyncio.sleep(2 ** attempt)  # Exponential backoff
-                    
-        return results
+def test_llm_instruction_following():
+    """Test LLM follows instructions correctly.""" 
+    results = chat_with_context.run_eval()
+    assert results["summary"]["metrics"]["instruction_adherence"]["mean"] >= 0.8
+```
 
-# Usage
-evaluator = RateLimitedEvaluator(requests_per_minute=30)
-batch_results = await evaluator.evaluate_batch([func1, func2, func3], "enterprise_dataset.jsonl")
+### GitHub Actions
+```yaml
+# .github/workflows/llm-tests.yml
+name: LLM Function Tests
+on: [push, pull_request]
+
+jobs:
+  test-llm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install vald8
+          
+      - name: Run LLM tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python -c "
+          from my_llm import generate_response
+          results = generate_response.run_eval()
+          if not results['passed']:
+              print('❌ LLM tests failed')
+              exit(1)
+          print('✅ LLM tests passed')
+          "
 ```
 
 ---
 
-## ⚙️ Configuration (Optional)
+## 🔧 Advanced Testing Workflows
 
-**Vald8 works out of the box**, but you can customize it:
+### Test Organization & Best Practices
 
-### Basic Settings
+#### Grouping Tests by Functionality
+```python
+# Schema validation tests
+@vald8(dataset="schema_tests.jsonl", tests=["schema_fidelity"])
+def data_extractor(text: str) -> dict:
+    return extract_structured_data(text)
+
+# Instruction following tests  
+@vald8(dataset="instruction_tests.jsonl", tests=["instruction_adherence"])
+def task_executor(instruction: str) -> str:
+    return execute_llm_task(instruction)
+
+# Combined validation
+@vald8(dataset="combined_tests.jsonl", tests=["schema_fidelity", "instruction_adherence"])
+def complete_workflow(input_data: dict) -> dict:
+    return process_complete_workflow(input_data)
+```
+
+#### A/B Testing Different Approaches
+```python
+# Compare different prompting strategies
+@vald8(dataset="comparison_tests.jsonl")
+def direct_prompting(query: str) -> str:
+    return llm_call(f"Answer: {query}")
+
+@vald8(dataset="comparison_tests.jsonl")  
+def chain_of_thought(query: str) -> str:
+    prompt = f"Think step by step:\n1. Understand: {query}\n2. Analyze:\n3. Answer:"
+    return llm_call(prompt)
+
+# Run comparison
+results_direct = direct_prompting.run_eval()
+results_cot = chain_of_thought.run_eval()
+
+print(f"Direct: {results_direct['summary']['success_rate']:.1%}")
+print(f"CoT: {results_cot['summary']['success_rate']:.1%}")
+```
+
+### Cost & Performance Optimization
+
+#### Minimizing API Costs in CI
+```python
+# Use cheaper models for basic validation
+@vald8(
+    dataset="basic_tests.jsonl", 
+    judge_provider="gpt-3.5-turbo",  # Cheaper for simple checks
+    tests=["schema_fidelity"]  # No LLM judge needed
+)
+def cost_optimized_function(prompt: str) -> dict:
+    return llm_call(prompt, model="gpt-3.5-turbo")
+
+# Use sampling for large test suites
+@vald8(dataset="large_tests.jsonl", sample_size=50)  # Test subset in CI
+def performance_function(data: dict) -> dict:
+    return expensive_llm_operation(data)
+```
+
+#### Caching for Faster CI Runs
 ```python
 @vald8(
-    dataset="my_tests.jsonl",
-    tests=["accuracy"],                    # What to test for
-    thresholds={"accuracy": 0.8},          # Minimum score to pass (0.8 = 80%)
-    judge_provider="openai"                # Use OpenAI to judge responses (optional)
+    dataset="regression_tests.jsonl",
+    cache=True  # Cache results to speed up CI
 )
-def my_function(prompt):
-    return my_ai_call(prompt)
+def cached_function(input_data: str) -> str:
+    return stable_llm_function(input_data)
 ```
 
-### Environment Variables (Optional)
-If you want to use advanced features, set these:
+### Regression Detection Patterns
+
+#### Pre-commit Hooks
+```python
+# .pre-commit-config.yaml
+repos:
+  - repo: local
+    hooks:
+      - id: vald8-tests
+        name: LLM Function Tests
+        entry: python -c "from my_llm import critical_function; assert critical_function.run_eval()['passed']"
+        language: system
+        pass_filenames: false
+```
+
+#### Critical Path Testing
+```python
+# test_critical_llm_functions.py
+import pytest
+
+def test_schema_validation_critical():
+    """Critical path: ensure JSON schema compliance."""
+    results = data_extractor.run_eval()
+    assert results["passed"], "Schema validation failed - blocking deployment"
+    
+def test_safety_compliance():
+    """Critical path: safety must be 100%."""
+    results = content_generator.run_eval() 
+    safety_score = results["summary"]["metrics"]["safety"]["mean"]
+    assert safety_score == 1.0, f"Safety compliance failed: {safety_score}"
+
+def test_instruction_following():
+    """Critical path: instruction adherence above threshold."""
+    results = task_executor.run_eval()
+    instruction_score = results["summary"]["metrics"]["instruction_adherence"]["mean"]
+    assert instruction_score >= 0.8, f"Instruction adherence too low: {instruction_score}"
+```
+
+---
+
+## ⚙️ Configuration 
+
+**Zero configuration required** - Vald8 works out of the box:
+
+### Basic Usage
+```python
+@vald8(dataset="tests.jsonl")  # That's it!
+def my_function(prompt: str) -> dict:
+    return llm_call(prompt)
+```
+
+### Available Options
+```python
+@vald8(
+    dataset="tests.jsonl",
+    tests=["schema_fidelity"],             # What to validate  
+    thresholds={"schema_fidelity": 1.0},   # Pass/fail criteria
+    cache=True,                            # Speed up CI runs
+    judge_provider="openai"                # For instruction adherence tests
+)
+def my_function(prompt: str) -> dict:
+    return llm_call(prompt)
+```
+
+### Environment Variables
 ```bash
-# For OpenAI-powered testing (optional)
-export OPENAI_API_KEY="sk-your-key-here"
+# API keys (only needed for LLM-as-judge features)
+export OPENAI_API_KEY="sk-..."          # For OpenAI judge
+export ANTHROPIC_API_KEY="sk-ant-..."   # For Claude judge
 
-# For Claude-powered testing (optional)  
-export ANTHROPIC_API_KEY="sk-ant-your-key-here"
-
-# Customize where results are saved (optional)
-export VALD8_RUN_DIR="./my_test_results"
+# Optional customization
+export VALD8_CACHE_DIR=".vald8_cache"   # Cache location  
+export VALD8_RESULTS_DIR="./test_runs"  # Results location
 ```
 
-**Note:** You don't need any API keys to get started! Vald8 works fine with basic testing.
+**Most teams only need schema validation - no API keys required!**
 
 ---
 
@@ -663,41 +471,42 @@ A: Vald8 will catch errors and continue testing the other examples. You'll see w
 
 ## 🎯 When to Use Vald8
 
-**🚀 Before launching your app** - Make sure your AI works well before users see it
+**✅ Schema Validation** - Ensure your LLM returns proper JSON structure  
+**✅ Regression Testing** - Catch when changes break AI behavior  
+**✅ CI/CD Integration** - Validate AI functions in deployment pipeline  
+**✅ Prompt Comparison** - A/B test different prompting strategies  
+**✅ Instruction Compliance** - Verify AI follows specific requirements  
 
-**🔄 After making changes** - Test that improvements actually improve things  
+## 🚀 Getting Started
 
-**📈 Comparing different approaches** - See which prompt, model, or method works better
+```bash
+pip install vald8
+```
 
-**🛡️ Safety compliance** - Ensure your AI meets safety standards
-
-**⚡ Automated testing** - Run tests automatically when you deploy code
-
----
-
-## 🚀 Getting Started Today
-
-1. **Install**: `pip install vald8`
-2. **Add the decorator** to your AI function
-3. **Create a test file** with a few examples
-4. **Run tests** and see how your AI performs!
-
-That's it! You're now testing your AI like a pro.
+Add `@vald8(dataset="tests.jsonl")` to any LLM function and you're testing like pytest!
 
 ---
 
-## 🤝 Help & Community
+## 🤝 Open Source Community
 
-- 📖 **Documentation**: [vald8.dev](https://vald8.dev)
-- 🐛 **Issues**: [GitHub Issues](https://github.com/yourusername/vald8/issues)
-- 💬 **Community**: [Discord](https://discord.gg/vald8)
+**Contributing:**
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/vald8/issues)
+- 💡 **Feature Ideas**: [GitHub Discussions](https://github.com/yourusername/vald8/discussions)  
+- 🔧 **Pull Requests**: See [CONTRIBUTING.md](CONTRIBUTING.md)
+- 📖 **Documentation**: Help improve examples and guides
+
+**Community:**
+- ⭐ **Star on GitHub** if Vald8 helps your project
+- 🐦 **Share your experience** on Twitter/LinkedIn  
+- 💬 **Join discussions** in Python Discord servers
+- 📝 **Write blog posts** about LLM testing patterns
 
 ---
 
 ## 📜 License
 
-MIT License - Use it however you want!
+MIT License - Free and open source forever.
 
 ---
 
-**Built with ❤️ for everyone building with AI**
+**Built by developers, for developers. pytest for the LLM age. 🚀**
