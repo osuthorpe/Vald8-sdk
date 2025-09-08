@@ -86,7 +86,7 @@ vald8/
 
 ### 1. Type Definitions Module (`types.py`)
 
-Clean type definitions inspired by Pydantic's design philosophy:
+Clean type definitions design philosophy:
 
 ```python
 from typing import Dict, List, Optional, Any, Literal, NamedTuple, Protocol, Union
@@ -363,7 +363,7 @@ class ErrorLocation(NamedTuple):
 
 ### 2. Error Handling Module (`errors.py`)
 
-Rich error system inspired by Pydantic's comprehensive error reporting:
+Rich error system:
 
 ```python
 from typing import List, Dict, Any, Optional, Union
@@ -574,13 +574,12 @@ Clean dataset handling with comprehensive validation:
 from typing import Generator, List, Optional
 import json
 from pathlib import Path
-from pydantic import ValidationError as PydanticValidationError
 
 from .models import DatasetExample
 from .errors import DatasetValidationError, handle_validation_error
 
 class DatasetLoader:
-    """Loads and validates JSONL datasets using Pydantic models."""
+    """Loads and validates JSONL datasets with comprehensive validation."""
     
     def __init__(self, path: str, validate_on_load: bool = True):
         """
@@ -619,7 +618,7 @@ class DatasetLoader:
                     # Parse JSON
                     raw_data = json.loads(line)
                     
-                    # Validate with Pydantic model
+                    # Validate with dataclass model
                     example = DatasetExample(**raw_data)
                     yield example
                     
@@ -632,16 +631,15 @@ class DatasetLoader:
                     }
                     self._handle_error(error, line_num)
                     
-                except PydanticValidationError as e:
-                    # Convert Pydantic errors to our format
-                    for err in e.errors():
-                        error = {
-                            "loc": ["line", line_num] + list(err["loc"]),
-                            "msg": err["msg"],
-                            "type": err["type"],
-                            "ctx": err.get("ctx", {})
-                        }
-                        self._handle_error(error, line_num)
+                except ValueError as e:
+                    # Convert dataclass validation errors to our format
+                    error = {
+                        "loc": ["line", line_num],
+                        "msg": str(e),
+                        "type": "validation_error",
+                        "input": line[:100]
+                    }
+                    self._handle_error(error, line_num)
     
     def _handle_error(self, error: Dict[str, Any], line_num: int):
         """Handle validation error based on configuration."""
@@ -715,7 +713,7 @@ def validate_dataset(path: str) -> None:
 
 ### 5. Runner Module (`runners.py`)
 
-Enhanced with Pydantic models and error handling:
+Enhanced with dataclass models and comprehensive error handling:
 
 ```python
 from typing import Callable, Dict, List, Optional, Any
@@ -723,7 +721,6 @@ from datetime import datetime
 import time
 import uuid
 from pathlib import Path
-from pydantic import ValidationError as PydanticValidationError
 
 from .models import (
     DatasetExample, EvaluationResult, EvaluationSummary,
@@ -732,7 +729,7 @@ from .models import (
 from .errors import MetricError, JudgeError, handle_validation_error
 
 class Runner:
-    """Orchestrates evaluation execution with Pydantic models."""
+    """Orchestrates evaluation execution with comprehensive validation."""
     
     def __init__(
         self,
@@ -790,7 +787,7 @@ class Runner:
                 results.append(result)
                 
                 # Write result immediately (streaming)
-                writer.write_result(result.model_dump())
+                writer.write_result(result.to_dict())
                 
             except Exception as e:
                 # Log error but continue evaluation
@@ -811,21 +808,21 @@ class Runner:
                     error=str(e)
                 )
                 results.append(error_result)
-                writer.write_result(error_result.model_dump())
+                writer.write_result(error_result.to_dict())
         
-        # Generate summary using Pydantic model
+        # Generate summary using dataclass model
         duration = time.time() - start_time
         summary = self._generate_summary(results, duration)
         
         # Write summary
-        writer.write_summary(summary.model_dump())
+        writer.write_summary(summary.to_dict())
         writer.write_metadata({
             "run_id": self.run_id,
             "dataset": self.dataset,
             "tests": self.tests,
             "thresholds": self.thresholds,
             "judge_provider": self.judge_provider,
-            "config": self.config.model_dump(),
+            "config": self.config.__dict__ if self.config else {},
             "errors": errors_collected
         })
         
@@ -864,9 +861,9 @@ class Runner:
             cached = cache_mgr.get(self.func, example.input, self.judge_provider)
             if cached:
                 try:
-                    # Validate cached result with Pydantic
+                    # Validate cached result with dataclass
                     return EvaluationResult(**cached)
-                except PydanticValidationError:
+                except (ValueError, TypeError):
                     # Invalid cache entry, proceed with evaluation
                     pass
         
@@ -925,7 +922,7 @@ class Runner:
                     if test_name in self.thresholds:
                         raise MetricError(test_name, example.id, e)
         
-        # Create evaluation result with Pydantic model
+        # Create evaluation result with dataclass model
         result = EvaluationResult(
             id=example.id,
             input=example.input,
@@ -943,7 +940,7 @@ class Runner:
                 self.func,
                 example.input,
                 self.judge_provider,
-                result.model_dump()
+                result.to_dict()
             )
         
         return result

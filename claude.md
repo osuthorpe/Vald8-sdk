@@ -1,6 +1,6 @@
 # 📘 Vald8 Implementation Guide
 
-This document provides step-by-step implementation instructions for building Vald8 MVP using maintainability patterns inspired by Pydantic's excellent design, but without external dependencies.
+This document provides step-by-step implementation instructions for building Vald8 MVP without external dependencies.
 
 ## 🤖 Working with Claude Code
 
@@ -86,10 +86,10 @@ class DatasetExample:
 
 ---
 
-## 🎯 Pydantic-Inspired Implementation Principles
+## 🎯 Implementation Principles
 
 ### **Core Philosophy**
-Build a library as maintainable and developer-friendly as Pydantic by applying these patterns:
+Build a library that is maintainable and developer-friendly by applying these patterns:
 
 1. **Type-First Design** — Strong typing drives API clarity
 2. **Rich Error Context** — Detailed, actionable error messages
@@ -314,7 +314,7 @@ class EvaluationResult:
 ```
 
 **Key Implementation Notes:**
-- Use `__post_init__` for validation (like Pydantic's validators)
+- Use `__post_init__` for validation
 - Add `to_dict()` methods for explicit serialization
 - Use `@property` for computed fields
 - Validate all inputs with helpful error messages
@@ -323,7 +323,7 @@ class EvaluationResult:
 
 ## 🚨 Step 3: Error System Implementation
 
-Build a comprehensive error system inspired by Pydantic's ValidationError:
+Build a comprehensive error system for ValidationError:
 
 ### `errors.py` Key Patterns
 
@@ -443,7 +443,7 @@ class DatasetLoader:
         self._errors.append(error)
         
         if self.validate_on_load:
-            # Fail fast like Pydantic
+            # Fail fast
             raise DatasetValidationError([error])
 ```
 
@@ -489,8 +489,6 @@ def test_dataset_validation_comprehensive():
 
 ## 🎨 Step 5: Decorator Implementation
 
-The decorator should feel as clean as Pydantic's syntax:
-
 ### Key Patterns in `decorator.py`
 
 ```python
@@ -505,7 +503,7 @@ def vald8(
 ) -> Callable:
     """Clean decorator with comprehensive validation."""
     
-    # Early validation - fail fast like Pydantic
+    # Early validation - fail fast
     validation_errors = []
     
     # Validate each parameter systematically
@@ -554,7 +552,7 @@ def vald8(
                 return runner.execute()
                 
             except Exception as e:
-                # Enhance errors with context like Pydantic
+                # Enhance errors with context
                 enhanced_msg = format_error_context(e, f"Evaluation of {func.__name__}")
                 
                 if isinstance(e, (ConfigurationError, ValidationError)):
@@ -581,7 +579,7 @@ def vald8(
 
 ```python
 def test_decorator_validation_comprehensive():
-    """Test decorator validation like Pydantic models."""
+    """Test decorator validation models."""
     
     # Should fail with detailed error
     with pytest.raises(ValidationError) as exc_info:
@@ -608,14 +606,14 @@ def test_decorator_validation_comprehensive():
 
 ## 🧪 Step 6: Testing Patterns
 
-Use testing patterns inspired by Pydantic's comprehensive test suite:
+Use comprehensive test suite:
 
 ### Test Organization
 
 ```python
 # tests/test_types.py
 def test_dataset_example_validation():
-    """Test dataclass validation like Pydantic models."""
+    """Test dataclass validation models."""
     
     # Valid example should work
     example = DatasetExample(
@@ -634,7 +632,7 @@ def test_dataset_example_validation():
 
 # tests/test_errors.py
 def test_validation_error_formatting():
-    """Test error formatting is helpful like Pydantic."""
+    """Test error formatting is helpful."""
     
     errors = [
         {
@@ -654,7 +652,7 @@ def test_validation_error_formatting():
     assert "input: -1" in formatted
 
 # tests/test_integration.py
-def test_end_to_end_like_pydantic():
+def test_end_to_end_workflow():
     """Test complete workflow with good error messages."""
     
     @vald8(
@@ -859,7 +857,7 @@ def run_evaluation(args):
 
 ### Validation Checklist
 
-**API Design (Pydantic-inspired)**
+**API Design (Type-First)**
 - [ ] Early validation with helpful errors
 - [ ] Rich error context with location information
 - [ ] Consistent method naming (`to_dict()`, `from_env()`)
@@ -893,7 +891,7 @@ def run_evaluation(args):
 
 ### Key Success Metrics
 
-1. **Error Quality**: Errors should be as helpful as Pydantic's
+1. **Error Quality**: Errors should be rich and actionable
 2. **API Consistency**: All modules follow same patterns  
 3. **Type Safety**: Strong typing throughout
 4. **Performance**: Validate efficiently, fail fast
@@ -907,4 +905,4 @@ def run_evaluation(args):
 4. **Missing Type Hints**: Everything public should be typed
 5. **Complex Abstractions**: Keep it simple and readable
 
-By following these patterns, Vald8 will have the same developer-friendly experience as Pydantic while remaining lightweight and focused on LLM evaluation.
+By following these patterns, Vald8 will provide an excellent developer-friendly experience while remaining lightweight and focused on LLM evaluation.
