@@ -1,22 +1,72 @@
 """
 Vald8: Lightweight Python SDK for automated LLM evaluation.
 
-A developer-first evaluation framework for testing LLM functions with structured
-datasets, configurable metrics, and threshold-based validation.
+pytest for LLMs - A developer-first evaluation framework for testing LLM functions 
+with structured datasets, configurable metrics, and threshold-based validation.
 """
 
-from .decorator import vald8
-from .models import DatasetExample, EvaluationResult, MetricResult, Vald8Config
-from .errors import ValidationError, DatasetValidationError, ConfigurationError
+# Core decorator and convenience functions
+from .decorator import vald8, pytest_for_llms, llm_test
+
+# Data models
+from .models import (
+    DatasetExample, 
+    EvaluationResult, 
+    EvaluationSummary,
+    TestResult,
+    MetricResult, 
+    Vald8Config,
+    JudgeConfig
+)
+
+# Error types
+from .errors import (
+    Vald8Error,
+    ValidationError, 
+    DatasetValidationError, 
+    ConfigurationError,
+    EvaluationError,
+    JudgeProviderError,
+    MetricCalculationError
+)
+
+# Utility functions
+from .dataset import load_dataset, validate_dataset_format
+from .config import config_manager
+from .results import ResultsManager
 
 __version__ = "0.1.0"
+__author__ = "Alex Thorpe"
+__license__ = "MIT"
+__description__ = "pytest for LLMs - Lightweight Python SDK for automated LLM evaluation"
+
 __all__ = [
+    # Core decorator
     "vald8",
+    "pytest_for_llms", 
+    "llm_test",
+    
+    # Data models
     "DatasetExample", 
     "EvaluationResult",
+    "EvaluationSummary",
+    "TestResult",
     "MetricResult",
     "Vald8Config",
+    "JudgeConfig",
+    
+    # Error types
+    "Vald8Error",
     "ValidationError",
     "DatasetValidationError", 
     "ConfigurationError",
+    "EvaluationError",
+    "JudgeProviderError",
+    "MetricCalculationError",
+    
+    # Utilities
+    "load_dataset",
+    "validate_dataset_format",
+    "config_manager",
+    "ResultsManager",
 ]
