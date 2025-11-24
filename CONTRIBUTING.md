@@ -8,7 +8,7 @@ Thank you for your interest in contributing to Vald8! This guide will help you g
 
 1. **Clone and setup**:
 ```bash
-git clone https://github.com/yourusername/vald8
+git clone https://github.com/osuthorpe/vald8
 cd vald8
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -44,7 +44,7 @@ black vald8/ tests/ && ruff check vald8/ tests/ && mypy vald8/ && pytest
 
 ### 1. Find or Create an Issue
 
-- Check existing [issues](https://github.com/yourusername/vald8/issues)
+- Check existing [issues](https://github.com/osuthorpe/vald8/issues)
 - For bugs: include reproduction steps and error messages
 - For features: explain the use case and expected behavior
 
@@ -295,8 +295,8 @@ Contributors will be:
 
 ## ❓ Questions?
 
-- **General questions**: Open a [Discussion](https://github.com/yourusername/vald8/discussions)
-- **Bug reports**: Create an [Issue](https://github.com/yourusername/vald8/issues)
+- **General questions**: Open a [Discussion](https://github.com/osuthorpe/vald8/discussions)
+- **Bug reports**: Create an [Issue](https://github.com/osuthorpe/vald8/issues)
 - **Security concerns**: See [SECURITY.md](SECURITY.md)
 
 ---

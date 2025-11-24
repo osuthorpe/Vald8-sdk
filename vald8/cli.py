@@ -157,7 +157,7 @@ Examples:
   vald8 runs show ./runs/2024-01-01_*  # Show run details
   vald8 runs cleanup --keep 10         # Keep only 10 most recent runs
 
-For more information, visit: https://github.com/yourusername/vald8
+For more information, visit: https://github.com/osuthorpe/vald8
         """
     )
     
