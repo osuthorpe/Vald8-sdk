@@ -84,16 +84,25 @@ Vald8 comes with a realistic example script that demonstrates how to evaluate fu
        ```
     2. Edit `.env` and add your API keys.
 
-### Run the Example
+### Run the Examples
+
+You can run the vendor-specific examples individually:
 
 ```bash
-python examples/basic_example.py
+# OpenAI
+python examples/openai_example.py
+
+# Anthropic
+python examples/anthropic_example.py
+
+# Google Gemini
+python examples/google_example.py
 ```
 
-This script will:
+These scripts will:
 1.  Load the evaluation dataset from `examples/eval_dataset.jsonl`.
-2.  Run evaluations on OpenAI GPT-5.1, Claude 3.5, and Gemini 1.5 (skipping any missing SDKs/keys).
-3.  Output pass/fail results and success rates for each model.
+2.  Run evaluations on the respective models.
+3.  Output pass/fail results and success rates.
 
 ---
 
