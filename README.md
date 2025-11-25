@@ -2,6 +2,8 @@
 
 Vald8 is a minimalist, developer-first SDK for testing LLM-powered Python functions using structured JSONL datasets.
 
+> 🤖 **For AI Assistants:** Read [`LLM_INSTRUCTIONS.md`](LLM_INSTRUCTIONS.md) for implementation patterns.
+
 It provides a simple way to validate:
 
 - **Schema correctness**

@@ -38,6 +38,7 @@ nav:
       - Installation: installation.md
       - Quick Start: quickstart.md
   - User Guide:
+      - LLM Integration: llm.md
       - Configuration: configuration.md
       - Examples: examples.md
       - Expectations: expectations.md
