@@ -1,0 +1,92 @@
+# Vald8 SDK Context for LLMs
+
+## Core Identity
+Vald8 is a minimalist Python SDK for evaluating LLM functions using a decorator-based approach and JSONL datasets. It is designed to be as simple as `pytest`.
+
+## Installation
+`pip install vald8`
+
+## Key Patterns
+
+### 1. The Decorator Pattern
+Vald8 works by decorating a **standalone function** or **instance method**.
+
+```python
+from vald8 import vald8
+
+@vald8(dataset="tests.jsonl")
+def my_llm_function(prompt: str) -> str:
+    # Call LLM here
+    return "response"
+```
+
+### 2. Class Methods
+Vald8 supports decorating instance methods directly. The decorator handles `self` binding automatically.
+
+```python
+class MyClass:
+    def __init__(self):
+        self.client = OpenAI()
+
+    @vald8(dataset="tests.jsonl")
+    def generate(self, prompt: str):
+        # 'self' is available here!
+        return self.client.generate(prompt)
+
+# Usage
+generator = MyClass()
+result = generator.generate("Hello") # Normal call
+eval_result = generator.generate.run_eval() # Run evaluation
+```
+
+## Dataset Construction (JSONL)
+Datasets must be in JSONL format. Each line is a single test case.
+
+```json
+{"id": "test_01", "input": "...", "expected": {...}}
+```
+
+### Input Formats
+- **Single Argument**: `{"input": "string value"}`
+- **Multiple Arguments**: `{"input": {"arg1": "val1", "arg2": "val2"}}` (Keys must match function arguments)
+
+### Expected Output Formats (Metrics)
+- **Reference**: `{"expected": {"reference": "exact match"}}`
+- **Contains**: `{"expected": {"contains": ["keyword1", "keyword2"]}}`
+- **Regex**: `{"expected": {"regex": "^pattern$"}}`
+- **Schema**: `{"expected": {"schema": {...}}}` (JSON Schema)
+- **Safety**: `{"expected": {"safe": true}}`
+- **Judge**: `{"expected": {"judge": {"prompt": "Is this polite?"}}}`
+
+## Configuration
+
+### Decorator Arguments
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `dataset` | `str` | **Required** | Path to JSONL file. |
+| `tests` | `list[str]` | `[]` | Metrics to evaluate. |
+| `thresholds` | `dict` | `{"accuracy": 0.8}` | Pass/fail thresholds. |
+| `judge_provider` | `str` | `None` | `"openai"`, `"anthropic"`, `"bedrock"`. |
+| `parallel` | `bool` | `False` | Run tests in parallel (faster for IO-bound). |
+| `save_results` | `bool` | `True` | Save detailed results to disk. |
+
+### Environment Variables
+Prefix all variables with `VALD8_`.
+- `VALD8_TESTS`: Comma-separated metrics.
+- `VALD8_THRESHOLD`: Global threshold.
+- `VALD8_OPENAI_API_KEY`: For judge provider.
+
+## CLI Usage
+- `vald8 runs list`: List recent evaluation runs.
+- `vald8 runs show <run_dir>`: Show detailed results for a run.
+
+## Results
+Results are saved in `runs/{date}_{session_id}/{function_name}/`.
+- `report.html`: Visual HTML report.
+- `results.jsonl`: Detailed JSONL results.
+- `summary.json`: Aggregated stats.
+
+## Common Pitfalls
+1.  **Do not mock the LLM** inside the decorated function. Vald8 is for integration testing.
+2.  **Do not use `pytest` decorators** on the same function.
+3.  **JSONL paths**: Ensure the dataset path is relative to where the script is run.
