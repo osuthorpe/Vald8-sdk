@@ -5,7 +5,18 @@ All notable changes to **LLM Expect** (formerly Vald8) will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2025-11-25
+## [0.1.8] - 2025-11-26
+
+### Added
+- **Documentation**: Added `docs/dataset_examples.md` with robust JSONL examples.
+- **LLM Accessibility**: Added `docs/llm.txt` and `docs/llms.txt` to make instructions easily accessible to AI agents.
+- **Examples**: Added comprehensive examples to `llm.txt` for all test types.
+
+### Changed
+- **Documentation**: Updated `README.md` with detailed configuration, installation, and usage instructions.
+- **Documentation**: Updated `llm.txt` with clearer implementation patterns and metric inference rules.
+
+## [0.1.7] - 2025-11-25
 
 ### 🚨 Breaking Changes
 - **Project Rename**: Renamed project from `vald8` to `llm-expect`.
