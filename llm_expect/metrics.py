@@ -1,5 +1,5 @@
 """
-Metric evaluation system for Vald8.
+Metric evaluation system for LLM Expect.
 
 Provides various metrics for evaluating LLM function outputs including accuracy,
 schema validation, safety, and instruction adherence.

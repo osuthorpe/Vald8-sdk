@@ -29,7 +29,7 @@ LLM Expect sits directly in your codebase, wrapping your LLM functions to provid
 ```mermaid
 graph TD
     subgraph "Your Codebase"
-        F[LLM Function] -->|Decorated with @vald8| D[LLM Expect SDK]
+        F[LLM Function] -->|Decorated with @llm_expect| D[LLM Expect SDK]
     end
     
     subgraph "Inputs"

@@ -32,7 +32,7 @@ def judge_correct(prompt: str) -> str:
     return response.choices[0].message.content
 
 
-@vald8(
+@llm_expect(
     dataset="examples/datasets/judge.jsonl",
     tests=["custom_judge"],
     judge_provider="openai",

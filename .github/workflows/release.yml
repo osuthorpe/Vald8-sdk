@@ -36,7 +36,7 @@ jobs:
 
     - name: Update version in __init__.py
       run: |
-        sed -i 's/^__version__ = ".*"/__version__ = "${{ steps.get_version.outputs.version }}"/' vald8/__init__.py
+        sed -i 's/^__version__ = ".*"/__version__ = "${{ steps.get_version.outputs.version }}"/' llm_expect/__init__.py
         echo "Updated __init__.py to version ${{ steps.get_version.outputs.version }}"
 
     - name: Install build dependencies

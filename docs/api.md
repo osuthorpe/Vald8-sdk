@@ -6,7 +6,7 @@
       show_root_heading: true
       show_source: true
       members:
-        - vald8
+        - llm_expect
         - pytest_for_llms
         - llm_test
         - DatasetExample

@@ -1,5 +1,5 @@
 """
-Result serialization and reporting for Vald8.
+Result serialization and reporting for LLM Expect.
 
 Handles saving evaluation results to disk, generating reports, and managing result data.
 """
@@ -107,7 +107,7 @@ class ResultsManager:
         """Generate a human-readable text report."""
         
         with open(report_file, 'w', encoding='utf-8') as f:
-            f.write(f"# Vald8 Evaluation Report\n\n")
+            f.write(f"# LLM Expect Evaluation Report\n\n")
             f.write(f"**Function:** {result.function_name}\n")
             f.write(f"**Dataset:** {result.dataset_path}\n")
             f.write(f"**Timestamp:** {result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
@@ -177,18 +177,18 @@ class ResultsManager:
             Reconstructed EvaluationResult object
             
         Raises:
-            Vald8Error: If loading fails
+            LLMExpectError: If loading fails
         """
         try:
             run_path = Path(run_dir)
             
             if not run_path.exists():
-                raise Vald8Error(f"Results directory not found: {run_dir}")
+                raise LLMExpectError(f"Results directory not found: {run_dir}")
             
             # Load metadata
             metadata_file = run_path / "metadata.json"
             if not metadata_file.exists():
-                raise Vald8Error(f"Metadata file not found: {metadata_file}")
+                raise LLMExpectError(f"Metadata file not found: {metadata_file}")
             
             with open(metadata_file, 'r') as f:
                 metadata = json.load(f)
@@ -196,7 +196,7 @@ class ResultsManager:
             # Load summary
             summary_file = run_path / "summary.json"
             if not summary_file.exists():
-                raise Vald8Error(f"Summary file not found: {summary_file}")
+                raise LLMExpectError(f"Summary file not found: {summary_file}")
             
             with open(summary_file, 'r') as f:
                 summary_data = json.load(f)
@@ -206,7 +206,7 @@ class ResultsManager:
             # Load test results
             results_file = run_path / "results.jsonl"
             if not results_file.exists():
-                raise Vald8Error(f"Results file not found: {results_file}")
+                raise LLMExpectError(f"Results file not found: {results_file}")
             
             tests = []
             with open(results_file, 'r') as f:
@@ -223,11 +223,11 @@ class ResultsManager:
                         tests.append(TestResult(**test_data))
             
             # Reconstruct config (simplified - some validation may be lost)
-            from .models import Vald8Config, JudgeConfig
+            from .models import LLMExpectConfig, JudgeConfig
             config_data = metadata['config']
             if 'judge' in config_data and config_data['judge']:
                 config_data['judge'] = JudgeConfig(**config_data['judge'])
-            config = Vald8Config(**config_data)
+            config = LLMExpectConfig(**config_data)
             
             # Create result object
             result = EvaluationResult(
@@ -245,7 +245,7 @@ class ResultsManager:
             return result
             
         except Exception as e:
-            raise Vald8Error(f"Failed to load results from {run_dir}: {str(e)}")
+            raise LLMExpectError(f"Failed to load results from {run_dir}: {str(e)}")
     
     def list_runs(self, limit: int = 20) -> List[Dict[str, Any]]:
         """
@@ -311,7 +311,7 @@ class ResultsManager:
             return runs
             
         except Exception as e:
-            raise Vald8Error(f"Failed to list runs: {str(e)}")
+            raise LLMExpectError(f"Failed to list runs: {str(e)}")
     
     def cleanup_old_runs(self, keep_count: int = 50) -> int:
         """
@@ -342,7 +342,7 @@ class ResultsManager:
             return deleted_count
             
         except Exception as e:
-            raise Vald8Error(f"Failed to cleanup old runs: {str(e)}")
+            raise LLMExpectError(f"Failed to cleanup old runs: {str(e)}")
 
 
 def calculate_summary_stats(tests: List[TestResult]) -> EvaluationSummary:

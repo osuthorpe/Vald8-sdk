@@ -14,7 +14,7 @@ LLM Expect is flexible enough to handle a wide variety of LLM evaluation scenari
 Use a **Custom Judge** to evaluate "Faithfulness" and "Answer Relevance".
 
 ```python
-@vald8(
+@llm_expect(
     dataset="datasets/rag_eval.jsonl",
     metric="judge"
 )
@@ -36,7 +36,7 @@ def rag_pipeline(query):
 Use the built-in **Safety Metric**. It checks if the model output indicates a refusal (e.g., "I cannot answer that").
 
 ```python
-@vald8(
+@llm_expect(
     dataset="datasets/safety_attack.jsonl",
     metric="safety"
 )
@@ -56,7 +56,7 @@ def safe_chatbot(user_input):
 Use **Regex** or **Contains** metrics for deterministic validation.
 
 ```python
-@vald8(
+@llm_expect(
     dataset="datasets/emails.jsonl",
     metric="regex"
 )

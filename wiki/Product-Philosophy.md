@@ -17,7 +17,7 @@ In a world of bloated frameworks and complex orchestration tools, LLM Expect cho
 We believe that if a tool is hard to use, it won't be used. Evaluation is critical, so it must be effortless.
 
 *   **Zero-Config Start**: You should be able to run your first evaluation in under 5 minutes.
-*   **Intuitive APIs**: We use Python decorators (`@vald8`) because they are idiomatic and non-intrusive. You don't rewrite your functions; you just annotate them.
+*   **Intuitive APIs**: We use Python decorators (`@llm_expect`) because they are idiomatic and non-intrusive. You don't rewrite your functions; you just annotate them.
 *   **Standard Formats**: We use JSONL for datasets. It's human-readable, diff-able, and streams efficiently. No proprietary binary formats or complex SQL schemas.
 
 ## 3. Transparency: No Black Boxes

@@ -37,7 +37,7 @@ def validate_dataset_cmd(args) -> int:
         
         return 0
         
-    except Vald8Error as e:
+    except LLMExpectError as e:
         print(f"❌ Dataset validation failed: {e}")
         return 1
     except Exception as e:
@@ -93,7 +93,7 @@ def list_runs_cmd(args) -> int:
         console.print()
         return 0
         
-    except Vald8Error as e:
+    except LLMExpectError as e:
         console.print(f"[bold red]Failed to list runs:[/bold red] {e}")
         return 1
     except Exception as e:
@@ -184,7 +184,7 @@ def show_run_cmd(args) -> int:
         
         return 0
         
-    except Vald8Error as e:
+    except LLMExpectError as e:
         console.print(f"[bold red]Failed to load run:[/bold red] {e}")
         return 1
     except Exception as e:
@@ -205,7 +205,7 @@ def cleanup_runs_cmd(args) -> int:
         
         return 0
         
-    except Vald8Error as e:
+    except LLMExpectError as e:
         print(f"❌ Cleanup failed: {e}")
         return 1
     except Exception as e:
@@ -222,9 +222,9 @@ def create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  vald8 runs cleanup --keep 10         # Keep only 10 most recent runs
+  llm-expect runs cleanup --keep 10         # Keep only 10 most recent runs
 
-For more information, visit: https://github.com/osuthorpe/vald8
+For more information, visit: https://github.com/osuthorpe/llm-expect
         """
     )
     

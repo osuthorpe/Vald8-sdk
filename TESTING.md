@@ -241,4 +241,4 @@ pytest -s tests/unit/test_decorator.py
 
 ---
 
-**Goal**: Maintain high confidence in Vald8's reliability across all supported LLM evaluation use cases.
+**Goal**: Maintain high confidence in LLM Expect's reliability across all supported LLM evaluation use cases.

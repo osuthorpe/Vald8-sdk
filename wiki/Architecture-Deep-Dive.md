@@ -9,9 +9,9 @@ LLM Expect is composed of three main layers:
 2.  **The Orchestration Layer** (`EvaluationRunner`): Manages the flow of data.
 3.  **The Evaluation Layer** (`metrics.py`, `judges.py`): Performs the actual validation.
 
-### 1. The Decorator Layer (`@vald8`)
+### 1. The Decorator Layer (`@llm_expect`)
 
-The `@vald8` decorator is a wrapper that intercepts calls to the user's function.
+The `@llm_expect` decorator is a wrapper that intercepts calls to the user's function.
 
 *   **Why Decorators?** We chose decorators because they are non-intrusive. They allow users to "tag" functions for evaluation without modifying the function's internal logic.
 *   **Mechanism**: When the decorated function is called, LLM Expect checks if it's being run in "evaluation mode" (triggered by `function.eval()`). If so, it bypasses normal execution and hands control to the `EvaluationRunner`.

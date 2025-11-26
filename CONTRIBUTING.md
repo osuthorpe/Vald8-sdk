@@ -233,7 +233,7 @@ Fixes #issue-number
 
 1. **Environment**:
    - Python version
-   - Vald8 version
+   - llm-expect version
    - Operating system
 
 2. **Reproduction**:
@@ -249,7 +249,7 @@ Fixes #issue-number
 ```markdown
 **Environment:**
 - Python 3.9.0
-- Vald8 0.1.0  
+- llm-expect 0.1.7 
 - macOS 12.0
 
 **Code:**

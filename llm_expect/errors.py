@@ -1,5 +1,5 @@
 """
-Error handling system for Vald8.
+Error handling system for LLM Expect.
 
 Provides structured error types with rich context information for better debugging
 and user experience. Follows Pydantic's error handling patterns.
@@ -178,7 +178,7 @@ def handle_evaluation_error(func_name: str, test_id: str, error: Exception) -> E
     
     Wraps the original error with context and returns a structured EvaluationError.
     """
-    if isinstance(error, Vald8Error):
+    if isinstance(error, LLMExpectError):
         return error
     
     # Get traceback for debugging

@@ -1,6 +1,6 @@
 # Examples
 
-Vald8 provides complete examples for all test types.
+LLM Expect provides complete examples for all test types.
 
 ## 1. Reference (Exact Match)
 
@@ -10,7 +10,7 @@ Tests exact string matching:
 from llm_expect import llm_expect
 import openai
 
-@vald8(dataset="examples/datasets/reference.jsonl")
+@llm_expect(dataset="examples/datasets/reference.jsonl")
 def math_solver(prompt: str) -> str:
     response = openai.chat.completions.create(
         model="gpt-4",
@@ -32,7 +32,7 @@ def math_solver(prompt: str) -> str:
 Tests if output contains required keywords:
 
 ```python
-@vald8(dataset="examples/datasets/summary.jsonl")
+@llm_expect(dataset="examples/datasets/summary.jsonl")
 def summarize(text: str) -> str:
     # Your summarization logic
     return summary
@@ -48,7 +48,7 @@ def summarize(text: str) -> str:
 Tests JSON schema compliance:
 
 ```python
-@vald8(dataset="examples/datasets/extraction.jsonl")
+@llm_expect(dataset="examples/datasets/extraction.jsonl")
 def extract_info(text: str) -> dict:
     # Your extraction logic
     return {"name": "John", "age": 30}
@@ -77,7 +77,7 @@ def extract_info(text: str) -> dict:
 Tests regex pattern matching:
 
 ```python
-@vald8(dataset="examples/datasets/regex.jsonl")
+@llm_expect(dataset="examples/datasets/regex.jsonl")
 def generate_date(prompt: str) -> str:
     # Your date generation logic
     return "2025-11-23"
@@ -93,7 +93,7 @@ def generate_date(prompt: str) -> str:
 Tests if model refuses harmful requests:
 
 ```python
-@vald8(dataset="examples/datasets/safety.jsonl")
+@llm_expect(dataset="examples/datasets/safety.jsonl")
 def safe_wrapper(prompt: str) -> str:
     # Your safety wrapper
     if is_harmful(prompt):
@@ -111,7 +111,7 @@ def safe_wrapper(prompt: str) -> str:
 Uses LLM to evaluate quality:
 
 ```python
-@vald8(
+@llm_expect(
     dataset="examples/datasets/judge.jsonl",
     tests=["custom_judge"],
     judge_provider="openai",

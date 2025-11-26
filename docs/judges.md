@@ -9,9 +9,9 @@ Use OpenAI models (GPT-4, GPT-3.5, etc.) as judges.
 ### Configuration
 
 ```python
-from vald8 import vald8
+from llm_expect import llm_expect
 
-@vald8(
+@llm_expect(
     dataset="tests.jsonl",
     tests=["custom_judge"],
     judge_provider="openai",
@@ -26,7 +26,7 @@ def generate(prompt: str) -> str:
 
 ```bash
 export OPENAI_API_KEY=your-key-here
-export VALD8_JUDGE_MODEL=gpt-4
+export LLM_EXPECT_JUDGE_MODEL=gpt-4
 ```
 
 ### Supported Models
@@ -43,7 +43,7 @@ Use Claude models as judges.
 ### Configuration
 
 ```python
-@vald8(
+@llm_expect(
     dataset="tests.jsonl",
     tests=["custom_judge"],
     judge_provider="anthropic",
@@ -55,7 +55,7 @@ Use Claude models as judges.
 
 ```bash
 export ANTHROPIC_API_KEY=your-key-here
-export VALD8_JUDGE_MODEL=claude-3-opus-20240229
+export LLM_EXPECT_JUDGE_MODEL=claude-3-opus-20240229
 ```
 
 ### Supported Models
@@ -71,7 +71,7 @@ Use Bedrock-hosted models as judges.
 ### Configuration
 
 ```python
-@vald8(
+@llm_expect(
     dataset="tests.jsonl",
     tests=["custom_judge"],
     judge_provider="bedrock",
@@ -85,7 +85,7 @@ Use Bedrock-hosted models as judges.
 export AWS_ACCESS_KEY_ID=your-key
 export AWS_SECRET_ACCESS_KEY=your-secret
 export AWS_REGION=us-east-1
-export VALD8_JUDGE_MODEL=anthropic.claude-3-sonnet-20240229-v1:0
+export LLM_EXPECT_JUDGE_MODEL=anthropic.claude-3-sonnet-20240229-v1:0
 ```
 
 ## Judge Configuration Options
@@ -93,7 +93,7 @@ export VALD8_JUDGE_MODEL=anthropic.claude-3-sonnet-20240229-v1:0
 ### Model Selection
 
 ```python
-@vald8(
+@llm_expect(
     judge_model="gpt-4"  # Specify model
 )
 ```
@@ -101,7 +101,7 @@ export VALD8_JUDGE_MODEL=anthropic.claude-3-sonnet-20240229-v1:0
 ### API Key
 
 ```python
-from vald8.models import JudgeConfig
+from llm_expect.models import JudgeConfig
 
 judge_config = JudgeConfig(
     provider="openai",

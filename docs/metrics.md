@@ -83,7 +83,7 @@ Uses LLM judge to evaluate instruction following.
 **Requires**: Judge provider configuration
 
 ```python
-@vald8(
+@llm_expect(
     dataset="tests.jsonl",
     tests=["instruction_adherence"],
     judge_provider="openai"
@@ -114,10 +114,10 @@ expected = {
 
 ### Automatic Selection
 
-Vald8 automatically selects metrics based on expectations:
+LLM Expect automatically selects metrics based on expectations:
 
 ```python
-@vald8(dataset="tests.jsonl")  # Auto-selects based on dataset
+@llm_expect(dataset="tests.jsonl")  # Auto-selects based on dataset
 ```
 
 ### Explicit Selection
@@ -125,7 +125,7 @@ Vald8 automatically selects metrics based on expectations:
 Override automatic selection:
 
 ```python
-@vald8(
+@llm_expect(
     dataset="tests.jsonl",
     tests=["accuracy", "safety"]  # Only run these metrics
 )

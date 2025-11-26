@@ -16,7 +16,7 @@ This roadmap outlines the strategic direction for LLM Expect. It is a living doc
 *Focus: Integration and Workflow.*
 
 *   **CI/CD Integration**: First-class GitHub Actions and GitLab CI runners to block PRs on regression.
-*   **Dashboarding**: A lightweight, local CLI dashboard (`vald8 ui`) to visualize results over time without needing a hosted server.
+*   **Dashboarding**: A lightweight, local CLI dashboard (`llm-expect ui`) to visualize results over time without needing a hosted server.
 *   **Dataset Generation**: Tools to help users bootstrap evaluation datasets from their existing logs ("Golden Set" creation).
 *   **Cost Tracking**: Estimate and track the cost of evaluation runs.
 
@@ -34,4 +34,4 @@ This roadmap outlines the strategic direction for LLM Expect. It is a living doc
 3.  **Community Driven**: We prioritize features requested by open-source contributors.
 
 ---
-*Have a feature request? [Open an issue](https://github.com/osuthorpe/vald8-sdk/issues) or contribute to the discussion!*
+*Have a feature request? [Open an issue](https://github.com/osuthorpe/llm-expect/issues) or contribute to the discussion!*

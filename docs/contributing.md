@@ -37,10 +37,10 @@ We use:
 
 Run all checks:
 ```bash
-black vald8 tests
-isort vald8 tests
-flake8 vald8 tests
-mypy vald8
+black llm_expect tests
+isort llm_expect tests
+flake8 llm_expect tests
+mypy llm_expect
 ```
 
 ## Pull Request Process
@@ -57,7 +57,7 @@ mypy vald8
 
 ## Reporting Issues
 
-Please use the [GitHub issue tracker](https://github.com/osuthorpe/vald8/issues) to report bugs or request features.
+Please use the [GitHub issue tracker](https://github.com/osuthorpe/llm-expect/issues) to report bugs or request features.
 
 ## License
 

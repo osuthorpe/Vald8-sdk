@@ -61,15 +61,15 @@ docs = [
 ]
 
 all = [
-    "vald8[dev,docs]"
+    "llm-expect[dev,docs]"
 ]
 
 [project.urls]
-Homepage = "https://github.com/osuthorpe/vald8-sdk"
-Documentation = "https://vald8-sdk.readthedocs.io"
-Repository = "https://github.com/osuthorpe/vald8-sdk.git"
-Issues = "https://github.com/osuthorpe/vald8-sdk/issues"
-Changelog = "https://github.com/osuthorpe/vald8-sdk/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/osuthorpe/llm-expect"
+Documentation = "https://llm-expect.readthedocs.io"
+Repository = "https://github.com/osuthorpe/llm-expect.git"
+Issues = "https://github.com/osuthorpe/llm-expect/issues"
+Changelog = "https://github.com/osuthorpe/llm-expect/blob/main/CHANGELOG.md"
 
 [project.scripts]
 llm-expect = "llm_expect.cli:main"
@@ -92,7 +92,7 @@ exclude = [
     "/__pycache__",
     "/.pytest_cache",
     "/runs",
-    "/.vald8_cache"
+    "/.llm_expect_cache"
 ]
 
 [tool.pytest.ini_options]

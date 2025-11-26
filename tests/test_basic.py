@@ -1,5 +1,5 @@
 """
-Basic functionality tests for Vald8.
+Basic functionality tests for LLM Expect.
 
 Tests core components to ensure basic functionality works correctly.
 """
@@ -62,7 +62,7 @@ def test_dataset_example_validation():
 
 
 def test_basic_decorator():
-    """Test basic @vald8 decorator functionality."""
+    """Test basic @llm_expect decorator functionality."""
     
     # Create temporary dataset file
     test_dataset = Path("test_basic.jsonl")
