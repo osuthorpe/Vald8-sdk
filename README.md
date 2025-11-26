@@ -43,6 +43,9 @@ No configuration. No complexity. No over-engineering.
 pip install llm-expect
 ```
 
+**Package Name:** `llm-expect` on PyPI.
+**Version:** Currently v0.1.8.
+
 ---
 
 # Core Concept
@@ -149,6 +152,14 @@ Save as `tests.jsonl`:
 {"id": "regex1", "input": "Give a date", "expected": {"regex": "\d{4}-\d{2}-\d{2}" }}
 ```
 
+**Input Format:**
+- **String/Int/Float/Bool:** Passed directly as the first argument.
+- **Dict:** Unpacked as `**kwargs` if the function accepts multiple arguments, otherwise passed as a single `dict` argument.
+- **List/Tuple:** Passed as a single argument (not unpacked).
+
+**Metric Inference:**
+If `tests=[]` is omitted in the decorator, metrics are automatically inferred from the keys in the `expected` dictionary (e.g., `reference` -> `accuracy`, `schema` -> `schema_fidelity`).
+
 Supported expectations:
 
 ### 1. Reference (Exact Match)
@@ -199,6 +210,18 @@ Uses an LLM to evaluate the output based on a custom prompt. Requires `judge_pro
   }
 }
 ```
+
+**Judge Scoring:**
+- **Scale:** 0.0 to 1.0 (Float).
+- **Rubric:** 5-point scale (Perfect=1.0, Good=0.8, Partial=0.6, Poor=0.4, None=0.0).
+- **Default Threshold:** 0.7.
+
+### 7. Safety (Built-in)
+Uses a hybrid approach:
+1.  **Refusal Detection:** If the model refuses (e.g., "I cannot help"), it is considered **Safe** (Score 1.0).
+2.  **Keyword Matching:** Checks for harmful keywords.
+3.  **LLM Judge:** (Optional) Can use an LLM to evaluate safety if configured.
+
 
 
 ---
@@ -263,6 +286,16 @@ For LLM-as-judge metrics (`instruction_adherence`, `safety`, `custom_judge`):
 - OpenAI: `OPENAI_API_KEY`
 - Anthropic: `ANTHROPIC_API_KEY`
 - Bedrock: `AWS_ACCESS_KEY_ID`
+
+**Configuration Precedence:**
+1. Decorator arguments (highest priority)
+2. Configuration file (`pyproject.toml`, `llm_expect.json`, etc.)
+3. Environment variables (lowest priority)
+
+**Defaults:**
+- **Provider:** OpenAI (`gpt-4`)
+- **Judge:** OpenAI (`gpt-4`) if not specified.
+
 
 ---
 
@@ -336,9 +369,14 @@ Most tests require **no API calls**.
   run: |
     python -c "
     from my_llm import generate
-    assert generate.run_eval()['passed']
+    # run_eval() returns a dict with 'passed' boolean
+    result = generate.run_eval()
+    if not result['passed']:
+        exit(1)
     "
 ```
+
+**Note:** There is no `llm-expect run` CLI command. You must execute your Python script to run evaluations. The CLI is strictly for managing results and validating datasets.
 
 ---
 
@@ -373,7 +411,9 @@ runs/
 | `cache_dir` | `str` | `".llm_expect_cache"` | Directory for cache files. |
 | `results_dir` | `str` | `"runs"` | Directory to save detailed evaluation results. |
 | `fail_fast` | `bool` | `False` | Stop evaluation immediately on the first failure. |
+| `fail_fast` | `bool` | `False` | Stop evaluation immediately on the first failure. |
 | `timeout` | `int` | `60` | Timeout in seconds for the decorated function execution. |
+| `parallel` | `bool` | `False` | Run tests in parallel using `ThreadPoolExecutor`. Max workers = `min(len(examples), 10)`. |
 
 ## Environment Variables
 
