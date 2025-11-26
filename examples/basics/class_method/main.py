@@ -24,9 +24,9 @@ class ReleaseNoteGenerator:
         self.client = OpenAI(api_key=api_key) if api_key else None
         self.model = "gpt-4o-mini"
     
-    dataset_path = os.path.join(os.path.dirname(__file__), "../datasets/reference.jsonl")
 
-    @llm_expect()
+
+    @llm_expect(
         dataset=os.path.join(os.path.dirname(__file__), "dataset.jsonl"),
         tests=["custom_judge"],
         judge_provider="openai",

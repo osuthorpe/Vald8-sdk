@@ -7,7 +7,7 @@ from llm_expect import llm_expect
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-dataset_path = os.path.join(os.path.dirname(__file__), "../datasets/extraction.jsonl")
+
 
 @llm_expect(dataset=os.path.join(os.path.dirname(__file__), "dataset.jsonl"))
 def extract_correct(prompt: str) -> str:

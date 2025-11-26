@@ -6,7 +6,7 @@ from llm_expect import llm_expect
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) if os.getenv("OPENAI_API_KEY") else None
 
-dataset_path = os.path.join(os.path.dirname(__file__), "../datasets/reference.jsonl")
+
 
 @llm_expect(dataset=os.path.join(os.path.dirname(__file__), "dataset.jsonl"))
 def reference_correct(prompt: str) -> str:
