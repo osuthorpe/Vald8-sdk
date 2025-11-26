@@ -24,32 +24,23 @@ def my_llm_function(prompt: str) -> str:
     return "response"
 ```
 
-### 2. ⚠️ The Class Method Wrapper (CRITICAL)
-**Vald8 CANNOT decorate instance methods directly.** It requires a standalone function.
-If the user asks to test a class method, you **MUST** create a module-level wrapper.
+### 2. Class Methods
+Vald8 supports decorating instance methods directly. The decorator handles `self` binding automatically.
 
-❌ **WRONG:**
 ```python
 class MyClass:
-    @vald8(dataset="tests.jsonl")  # ❌ ERROR: missing 'self'
+    def __init__(self):
+        self.client = OpenAI()
+
+    @vald8(dataset="tests.jsonl")
     def generate(self, prompt: str):
-        ...
-```
+        # 'self' is available here!
+        return self.client.generate(prompt)
 
-✅ **CORRECT:**
-```python
-# 1. Define the class normally
-class MyClass:
-    def generate(self, prompt: str):
-        ...
-
-# 2. Create a global instance
-_instance = MyClass()
-
-# 3. Create a wrapper function
-@vald8(dataset="tests.jsonl")
-def generate_wrapper(prompt: str):
-    return _instance.generate(prompt)
+# Usage
+generator = MyClass()
+result = generator.generate("Hello")
+eval_result = generator.generate.run_eval()
 ```
 
 ## 📁 Dataset Construction (JSONL)
@@ -132,24 +123,55 @@ Uses an LLM to grade the response based on a prompt.
 ## ⚙️ Configuration & Best Practices
 
 ### Decorator Arguments
-| Argument | Type | Description |
-|----------|------|-------------|
-| `dataset` | `str` | Path to JSONL file (Required) |
-| `tests` | `list[str]` | Metrics: `["accuracy", "schema_fidelity", "safety", "custom_judge"]` |
-| `judge_provider` | `str` | `"openai"`, `"anthropic"`, etc. (Required for judge metrics) |
-| `thresholds` | `dict` | `{"accuracy": 0.9}` |
+### Decorator Arguments
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `dataset` | `str` | **Required** | Path to JSONL file (relative or absolute). |
+| `tests` | `list[str]` | `[]` | Metrics to evaluate: `["accuracy", "schema_fidelity", "safety", "custom_judge"]`. |
+| `thresholds` | `dict` | `{"accuracy": 0.8}` | Pass/fail thresholds per metric. |
+| `judge_provider` | `str` | `None` | LLM judge provider: `"openai"`, `"anthropic"`, `"bedrock"`. |
+| `judge_model` | `str` | Provider default | Specific model for the judge (e.g., `"gpt-4"`). |
+| `sample_size` | `int` | `None` (All) | Number of examples to sample from the dataset. |
+| `shuffle` | `bool` | `False` | Whether to shuffle examples before sampling. |
+| `cache` | `bool` | `True` | Enable caching of results to avoid re-running passed tests. |
+| `cache_dir` | `str` | `".vald8_cache"` | Directory for cache files. |
+| `results_dir` | `str` | `"runs"` | Directory to save detailed evaluation results. |
+| `fail_fast` | `bool` | `False` | Stop evaluation immediately on the first failure. |
+| `timeout` | `int` | `60` | Timeout in seconds for the decorated function execution. |
 
 ### Environment Variables
-- `OPENAI_API_KEY` (for OpenAI judge)
-- `ANTHROPIC_API_KEY` (for Anthropic judge)
-- `VALD8_TESTS` (default metrics)
-- `VALD8_THRESHOLD` (global threshold)
+All configuration can be overridden by environment variables with the `VALD8_` prefix.
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `VALD8_TESTS` | List | Comma-separated metrics (e.g., `"accuracy,safety"`). |
+| `VALD8_THRESHOLD` | Float | Global threshold applied to all metrics. |
+| `VALD8_THRESHOLD_{METRIC}` | Float | Specific threshold for a metric (e.g., `VALD8_THRESHOLD_SAFETY`). |
+| `VALD8_SAMPLE_SIZE` | Int | Number of examples to sample. |
+| `VALD8_SHUFFLE` | Bool | Shuffle examples (`true`/`false`). |
+| `VALD8_CACHE` | Bool | Enable/disable caching. |
+| `VALD8_CACHE_DIR` | Str | Cache directory path. |
+| `VALD8_RESULTS_DIR` | Str | Results directory path. |
+| `VALD8_FAIL_FAST` | Bool | Stop on first failure. |
+| `VALD8_TIMEOUT` | Int | Function timeout in seconds. |
+
+### Judge Configuration
+For metrics that require an LLM judge (`instruction_adherence`, `safety`, `custom_judge`):
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VALD8_JUDGE_MODEL` | Judge model name | Provider default (e.g., GPT-4) |
+| `VALD8_JUDGE_API_KEY` | Judge API key | `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` |
+| `VALD8_JUDGE_BASE_URL` | Custom API base URL | Provider default |
+| `VALD8_JUDGE_TIMEOUT` | Judge request timeout | `30` |
+| `VALD8_JUDGE_MAX_RETRIES` | Max retry attempts | `3` |
+| `VALD8_JUDGE_TEMPERATURE` | Judge temperature | `0.0` |
 
 ### 🧠 Common Pitfalls to Avoid
 
 1.  **Do not mock the LLM inside the decorated function.** Vald8 is for *integration testing* with real LLMs.
 2.  **Do not use `pytest` decorators on the same function.** Vald8 is its own test runner.
-3.  **Always check for `self`.** If the user code is inside a class, apply the **Wrapper Pattern** immediately.
+3.  **JSONL paths.** Ensure the dataset path is relative to where the script is run, or use absolute paths.
 4.  **JSONL paths.** Ensure the dataset path is relative to where the script is run, or use absolute paths.
 
 ## 📝 Complete Example Implementation
@@ -161,13 +183,20 @@ from vald8 import vald8
 import os
 from openai import OpenAI
 
-# 1. Setup Client
-client = OpenAI()
-
-# 2. Define Logic (Class-based)
+# 1. Define Logic (Class-based)
 class StoryGenerator:
+    def __init__(self):
+        self.client = OpenAI()
+
+    @vald8(
+        dataset="stories.jsonl",
+        tests=["custom_judge", "safety"],
+        judge_provider="openai",
+        judge_model="gpt-4",
+        thresholds={"custom_judge": 0.8, "safety": 1.0}
+    )
     def generate_story(self, topic: str, length: str) -> str:
-        response = client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": f"Write a {length} story."},
@@ -176,24 +205,11 @@ class StoryGenerator:
         )
         return response.choices[0].message.content
 
-# 3. Create Global Instance
-generator = StoryGenerator()
-
-# 4. Create Wrapper for Vald8
-@vald8(
-    dataset="stories.jsonl",
-    tests=["custom_judge", "safety"],
-    judge_provider="openai",
-    judge_model="gpt-4",
-    thresholds={"custom_judge": 0.8, "safety": 1.0}
-)
-def test_story_generation(topic: str, length: str) -> str:
-    return generator.generate_story(topic, length)
-
-# 5. Run Evaluation
+# 2. Run Evaluation
 if __name__ == "__main__":
     print("Running evaluation...")
-    results = test_story_generation.run_eval()
+    generator = StoryGenerator()
+    results = generator.generate_story.run_eval()
     
     if results['passed']:
         print("✅ All tests passed!")

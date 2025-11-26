@@ -4,22 +4,20 @@
 
 Configure Vald8 using the `@vald8` decorator:
 
-```python
-@vald8(
-    dataset="path/to/dataset.jsonl",       # Required: Path to JSONL dataset
-    tests=["accuracy", "schema_fidelity"], # Optional: Metrics to evaluate
-    thresholds={"accuracy": 0.9},          # Optional: Pass/fail thresholds
-    judge_provider="openai",               # Optional: LLM judge provider
-    judge_model="gpt-4",                   # Optional: Judge model name
-    sample_size=10,                        # Optional: Number of examples
-    shuffle=True,                          # Optional: Shuffle before sampling
-    cache=True,                            # Optional: Cache results
-    cache_dir=".vald8_cache",              # Optional: Cache directory
-    results_dir="runs",                    # Optional: Results directory
-    fail_fast=False,                       # Optional: Stop on first failure
-    timeout=60,                            # Optional: Function timeout (seconds)
-)
-```
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `dataset` | `str` | **Required** | Path to JSONL file (relative or absolute). |
+| `tests` | `list[str]` | `[]` | Metrics to evaluate: `["accuracy", "schema_fidelity", "safety", "custom_judge"]`. |
+| `thresholds` | `dict` | `{"accuracy": 0.8}` | Pass/fail thresholds per metric. |
+| `judge_provider` | `str` | `None` | LLM judge provider: `"openai"`, `"anthropic"`, `"bedrock"`. |
+| `judge_model` | `str` | Provider default | Specific model for the judge (e.g., `"gpt-4"`). |
+| `sample_size` | `int` | `None` (All) | Number of examples to sample from the dataset. |
+| `shuffle` | `bool` | `False` | Whether to shuffle examples before sampling. |
+| `cache` | `bool` | `True` | Enable caching of results to avoid re-running passed tests. |
+| `cache_dir` | `str` | `".vald8_cache"` | Directory for cache files. |
+| `results_dir` | `str` | `"runs"` | Directory to save detailed evaluation results. |
+| `fail_fast` | `bool` | `False` | Stop evaluation immediately on the first failure. |
+| `timeout` | `int` | `60` | Timeout in seconds for the decorated function execution. |
 
 ## Environment Variables
 

@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 
 from .errors import Vald8Error
 from .models import EvaluationResult, EvaluationSummary, MetricResult, TestResult
+from .reporting import HTMLReporter
 
 
 class ResultsManager:
@@ -80,6 +81,15 @@ class ResultsManager:
             # Generate human-readable report
             report_file = run_dir / "report.txt"
             self._generate_text_report(result, report_file)
+            
+            # Generate HTML report
+            try:
+                html_file = run_dir / "report.html"
+                reporter = HTMLReporter()
+                reporter.save_report(result, html_file)
+            except Exception as e:
+                # Don't fail the whole run if HTML generation fails
+                print(f"Warning: Failed to generate HTML report: {e}")
             
             # Update the result object with the run directory
             result.run_dir = str(run_dir)
@@ -250,38 +260,49 @@ class ResultsManager:
             run_dirs = [d for d in self.results_dir.iterdir() if d.is_dir()]
             run_dirs.sort(key=lambda x: x.stat().st_mtime, reverse=True)
             
-            for run_dir in run_dirs[:limit]:
-                try:
-                    metadata_file = run_dir / "metadata.json"
-                    if metadata_file.exists():
-                        with open(metadata_file, 'r') as f:
-                            metadata = json.load(f)
+            for session_dir in run_dirs:
+                if len(runs) >= limit:
+                    break
+                    
+                # Check for function subdirectories
+                for function_dir in session_dir.iterdir():
+                    if not function_dir.is_dir():
+                        continue
                         
-                        # Load summary for additional info
-                        summary_file = run_dir / "summary.json"
-                        summary_info = {}
-                        if summary_file.exists():
-                            with open(summary_file, 'r') as f:
-                                summary_data = json.load(f)
-                                summary_info = {
-                                    'total_tests': summary_data.get('total_tests', 0),
-                                    'success_rate': summary_data.get('success_rate', 0),
-                                    'total_time': summary_data.get('total_time', 0)
-                                }
-                        
-                        runs.append({
-                            'run_id': metadata.get('run_id', ''),
-                            'function_name': metadata.get('function_name', ''),
-                            'dataset_path': metadata.get('dataset_path', ''),
-                            'timestamp': metadata.get('timestamp', ''),
-                            'passed': metadata.get('passed', False),
-                            'run_dir': str(run_dir),
-                            **summary_info
-                        })
-                        
-                except Exception:
-                    # Skip runs with corrupted metadata
-                    continue
+                    try:
+                        metadata_file = function_dir / "metadata.json"
+                        if metadata_file.exists():
+                            with open(metadata_file, 'r') as f:
+                                metadata = json.load(f)
+                            
+                            # Load summary for additional info
+                            summary_file = function_dir / "summary.json"
+                            summary_info = {}
+                            if summary_file.exists():
+                                with open(summary_file, 'r') as f:
+                                    summary_data = json.load(f)
+                                    summary_info = {
+                                        'total_tests': summary_data.get('total_tests', 0),
+                                        'success_rate': summary_data.get('success_rate', 0),
+                                        'total_time': summary_data.get('total_time', 0)
+                                    }
+                            
+                            runs.append({
+                                'run_id': metadata.get('run_id', ''),
+                                'function_name': metadata.get('function_name', ''),
+                                'dataset_path': metadata.get('dataset_path', ''),
+                                'timestamp': metadata.get('timestamp', ''),
+                                'passed': metadata.get('passed', False),
+                                'run_dir': str(function_dir),
+                                **summary_info
+                            })
+                            
+                            if len(runs) >= limit:
+                                break
+                            
+                    except Exception:
+                        # Skip corrupted runs
+                        continue
             
             return runs
             

@@ -5,6 +5,7 @@ Provides the main decorator interface and evaluation runner that coordinates
 all components to evaluate LLM functions.
 """
 
+import concurrent.futures
 import inspect
 import time
 from datetime import datetime
@@ -71,13 +72,52 @@ class EvaluationRunner:
             # Run tests
             test_results = []
             
-            for example in examples:
-                test_result = self._evaluate_single_test(example)
-                test_results.append(test_result)
+            if self.config.parallel and not self.config.fail_fast and len(examples) > 1:
+                # Run in parallel using ThreadPoolExecutor
+                # Default to 5 workers or number of examples, whichever is smaller
+                max_workers = min(len(examples), 10)
                 
-                # Check fail_fast
-                if self.config.fail_fast and not test_result.passed:
-                    break
+                with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    # Submit all tasks
+                    future_to_example = {
+                        executor.submit(self._evaluate_single_test, example): example 
+                        for example in examples
+                    }
+                    
+                    # Collect results as they complete
+                    for future in concurrent.futures.as_completed(future_to_example):
+                        try:
+                            test_result = future.result()
+                            test_results.append(test_result)
+                        except Exception as e:
+                            # Should be handled inside _evaluate_single_test, but just in case
+                            example = future_to_example[future]
+                            test_results.append(TestResult(
+                                test_id=example.id,
+                                input=example.input,
+                                expected=example.expected,
+                                actual=None,
+                                error=f"Parallel execution error: {str(e)}",
+                                metrics=[],
+                                passed=False,
+                                execution_time=0.0
+                            ))
+                            
+                # Sort results by ID to maintain deterministic order
+                # This assumes IDs are comparable, or we can use the original index
+                # Let's map back to original order
+                example_ids = [e.id for e in examples]
+                test_results.sort(key=lambda x: example_ids.index(x.test_id) if x.test_id in example_ids else 999)
+                
+            else:
+                # Run sequentially
+                for example in examples:
+                    test_result = self._evaluate_single_test(example)
+                    test_results.append(test_result)
+                    
+                    # Check fail_fast
+                    if self.config.fail_fast and not test_result.passed:
+                        break
             
             # Calculate summary statistics
             summary = calculate_summary_stats(test_results)
@@ -229,6 +269,22 @@ class Vald8Function:
         self.__module__ = func.__module__
         self.__qualname__ = getattr(func, '__qualname__', func.__name__)
         self.__annotations__ = getattr(func, '__annotations__', {})
+    
+    def __get__(self, obj, objtype=None):
+        """
+        Support instance method binding.
+        When accessed from an instance, return a bound version of the function.
+        """
+        if obj is None:
+            return self
+            
+        # Create a bound method
+        bound_func = self.func.__get__(obj, objtype)
+        
+        # Return a new Vald8Function wrapping the bound method, sharing the config
+        # We need to ensure the new wrapper shares the same config object
+        wrapper = Vald8Function(bound_func, self.config)
+        return wrapper
     
     def __call__(self, *args, **kwargs):
         """Normal function call - evaluates the wrapped function normally."""
