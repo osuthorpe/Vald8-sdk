@@ -1,7 +1,6 @@
 """
-Pydantic models for Vald8 configuration and data structures.
-
-Provides type-safe models with validation for all core Vald8 data structures.
+Pydantic models for LLM Expect configuration and data structures.
+Provides type-safe models with validation for all core LLM Expect data structures.
 """
 
 from datetime import datetime
@@ -141,7 +140,7 @@ class EvaluationResult(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now, description="When evaluation ran")
     
     # Configuration used
-    config: 'Vald8Config' = Field(..., description="Configuration used for evaluation")
+    config: 'LLMExpectConfig' = Field(..., description="Configuration used for evaluation")
     
     # Results
     tests: List[TestResult] = Field(..., description="Individual test results")
@@ -196,8 +195,8 @@ class JudgeConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-class Vald8Config(BaseModel):
-    """Main configuration for Vald8 evaluation."""
+class LLMExpectConfig(BaseModel):
+    """Main configuration for LLM Expect evaluation."""
     
     # Dataset configuration
     dataset: str = Field(..., description="Path to the dataset file")
@@ -233,7 +232,7 @@ class Vald8Config(BaseModel):
         description="Whether to cache evaluation results"
     )
     cache_dir: str = Field(
-        default=".vald8_cache", 
+        default=".llm_expect_cache", 
         description="Directory for cache files"
     )
     

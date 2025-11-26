@@ -1,5 +1,5 @@
 """
-Configuration management for Vald8.
+Configuration management for LLM Expect.
 
 Handles loading configuration from various sources (environment, files, parameters)
 with proper validation and defaults.
@@ -10,14 +10,14 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from .errors import ConfigurationError, ValidationError
-from .models import JudgeConfig, Vald8Config
+from .models import JudgeConfig, LLMExpectConfig
 
 
 class ConfigManager:
-    """Manages Vald8 configuration from multiple sources."""
+    """Manages LLM Expect configuration from multiple sources."""
     
     def __init__(self):
-        self.env_prefix = "VALD8_"
+        self.env_prefix = "LLM_EXPECT_"
     
     def create_config(
         self,
@@ -34,9 +34,9 @@ class ConfigManager:
         fail_fast: bool = False,
         timeout: int = 60,
         **kwargs
-    ) -> Vald8Config:
+    ) -> LLMExpectConfig:
         """
-        Create a Vald8Config from parameters with environment variable fallbacks.
+        Create a LLMExpectConfig from parameters with environment variable fallbacks.
         
         Args:
             dataset: Path to dataset file
@@ -54,7 +54,7 @@ class ConfigManager:
             **kwargs: Additional configuration parameters
             
         Returns:
-            Validated Vald8Config object
+            Validated LLMExpectConfig object
             
         Raises:
             ConfigurationError: If configuration is invalid
@@ -69,7 +69,7 @@ class ConfigManager:
                 "sample_size": sample_size or self._get_env_int("SAMPLE_SIZE"),
                 "shuffle": shuffle or self._get_env_bool("SHUFFLE", False),
                 "cache": cache and self._get_env_bool("CACHE", True),  # Allow disabling cache
-                "cache_dir": cache_dir or self._get_env_str("CACHE_DIR") or ".vald8_cache",
+                "cache_dir": cache_dir or self._get_env_str("CACHE_DIR") or ".llm_expect_cache",
                 "results_dir": results_dir or self._get_env_str("RESULTS_DIR") or "runs",
                 "fail_fast": fail_fast or self._get_env_bool("FAIL_FAST", False),
                 "timeout": timeout or self._get_env_int("TIMEOUT") or 60,
@@ -83,7 +83,7 @@ class ConfigManager:
                 config_dict["judge"] = judge_config
             
             # Create and validate config
-            config = Vald8Config(**config_dict)
+            config = LLMExpectConfig(**config_dict)
             
             # Post-creation validation
             self._validate_paths(config)
@@ -170,7 +170,7 @@ class ConfigManager:
         
         return thresholds
     
-    def _validate_paths(self, config: Vald8Config) -> None:
+    def _validate_paths(self, config: LLMExpectConfig) -> None:
         """Validate file and directory paths in configuration."""
         
         # Check dataset file exists
@@ -259,7 +259,7 @@ class ConfigManager:
             return [item.strip() for item in value.split(",") if item.strip()]
         return None
     
-    def load_from_file(self, file_path: str) -> Vald8Config:
+    def load_from_file(self, file_path: str) -> LLMExpectConfig:
         """
         Load configuration from JSON or TOML file.
         
@@ -267,7 +267,7 @@ class ConfigManager:
             file_path: Path to configuration file
             
         Returns:
-            Validated Vald8Config object
+            Validated LLMExpectConfig object
             
         Raises:
             ConfigurationError: If file loading fails
@@ -314,7 +314,7 @@ class ConfigManager:
             if judge_data:
                 data["judge"] = JudgeConfig(**judge_data)
             
-            return Vald8Config(**data)
+            return LLMExpectConfig(**data)
             
         except Exception as e:
             if isinstance(e, ConfigurationError):
@@ -325,7 +325,7 @@ class ConfigManager:
                 config_value=file_path
             )
     
-    def save_to_file(self, config: Vald8Config, file_path: str) -> None:
+    def save_to_file(self, config: LLMExpectConfig, file_path: str) -> None:
         """
         Save configuration to JSON file.
         

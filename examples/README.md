@@ -1,6 +1,6 @@
-# Vald8 Examples
+# LLM Expect Examples
 
-This directory contains examples demonstrating various features and use cases of the Vald8 evaluation framework.
+This directory contains examples demonstrating various features and use cases of the LLM Expect evaluation framework.
 
 ## Quick Start
 
@@ -29,17 +29,17 @@ python examples/example_judge_openai.py
 
 ### Advanced Examples
 
-- **`example_class_method.py`** - Using `@vald8` with class methods ⭐
+- **`example_class_method.py`** - Using `@llm_expect` with class methods ⭐
 
-## Using Vald8 with Class Methods
+## Using LLM Expect with Class Methods
 
-The `@vald8` decorator is designed to work with **standalone functions**, not instance methods. If you have a class with methods you want to evaluate, you need to create a module-level wrapper function.
+The `@llm_expect` decorator is designed to work with **standalone functions**, not instance methods. If you have a class with methods you want to evaluate, you need to create a module-level wrapper function.
 
 ### ❌ This Won't Work
 
 ```python
 class MyClass:
-    @vald8(dataset="data.jsonl")
+    @llm_expect(dataset="data.jsonl")
     def my_method(self, input: str) -> str:  # ❌ Error: missing 'self'
         return self.process(input)
 ```
@@ -65,9 +65,9 @@ def _get_instance():
     return _instance
 
 # Decorate the wrapper function
-@vald8(dataset="data.jsonl")
+@llm_expect(dataset="data.jsonl")
 def my_method(input: str) -> str:
-    """Wrapper for Vald8 evaluation."""
+    """Wrapper for LLM Expect evaluation."""
     instance = _get_instance()
     return instance.my_method(input)
 ```
@@ -80,7 +80,7 @@ If your method doesn't need instance state:
 
 ```python
 class MyClass:
-    @vald8(dataset="data.jsonl")
+    @llm_expect(dataset="data.jsonl")
     @staticmethod
     def my_method(input: str) -> str:
         return process(input)
@@ -94,7 +94,7 @@ If you need access to class-level state:
 class MyClass:
     config = {"model": "gpt-4"}
     
-    @vald8(dataset="data.jsonl")
+    @llm_expect(dataset="data.jsonl")
     @classmethod
     def my_method(cls, input: str) -> str:
         return process(input, model=cls.config["model"])
@@ -132,7 +132,7 @@ All examples use JSONL (JSON Lines) format for datasets. Each line is a JSON obj
 When using structured input, your function signature must match the input fields:
 
 ```python
-@vald8(dataset="data.jsonl")
+@llm_expect(dataset="data.jsonl")
 def my_function(title: str, description: str, labels: List[str]) -> str:
     # Function parameters match the input object keys
     pass
@@ -152,7 +152,7 @@ python examples/example_class_method.py
 ```
 
 ### View evaluation results:
-Results are automatically displayed in the console. For detailed results, check the `.vald8_cache` directory.
+Results are automatically displayed in the console. For detailed results, check the `.llm_expect_cache` directory.
 
 ## Common Issues
 
@@ -168,7 +168,7 @@ Results are automatically displayed in the console. For detailed results, check 
 
 **Solution:** Use relative paths from the project root or absolute paths:
 ```python
-@vald8(dataset="examples/datasets/my_data.jsonl")  # Relative to project root
+@llm_expect(dataset="examples/datasets/my_data.jsonl")  # Relative to project root
 ```
 
 ### Issue: Input parameters don't match
@@ -190,6 +190,6 @@ def my_function(title: str, description: str) -> str:
 
 ## Need Help?
 
-- 📖 [Full Documentation](https://vald8.readthedocs.io/)
-- 🐛 [Report Issues](https://github.com/osuthorpe/Vald8-sdk/issues)
-- 💬 [Discussions](https://github.com/osuthorpe/Vald8-sdk/discussions)
+- 📖 [Full Documentation](https://llm-expect.readthedocs.io/)
+- 🐛 [Report Issues](https://github.com/osuthorpe/llm-expect/issues)
+- 💬 [Discussions](https://github.com/osuthorpe/llm-expect/discussions)

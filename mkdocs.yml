@@ -1,10 +1,10 @@
-site_name: Vald8 Documentation
+site_name: LLM Expect Documentation
 site_description: pytest for LLMs - A developer-first evaluation framework
 site_author: Alex Thorpe
-site_url: https://vald8.readthedocs.io
+site_url: https://llm-expect.readthedocs.io
 
-repo_name: osuthorpe/vald8
-repo_url: https://github.com/osuthorpe/vald8
+repo_name: osuthorpe/llm-expect
+repo_url: https://github.com/osuthorpe/llm-expect
 edit_uri: edit/main/docs/
 
 theme:
@@ -81,6 +81,6 @@ plugins:
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/osuthorpe/vald8
+      link: https://github.com/osuthorpe/llm-expect
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/vald8/
+      link: https://pypi.org/project/llm-expect/

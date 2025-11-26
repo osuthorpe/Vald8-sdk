@@ -1,12 +1,12 @@
 """
-Vald8: Lightweight Python SDK for automated LLM evaluation.
+LLM Expect: Lightweight Python SDK for automated LLM evaluation.
 
 pytest for LLMs - A developer-first evaluation framework for testing LLM functions 
 with structured datasets, configurable metrics, and threshold-based validation.
 """
 
 # Core decorator and convenience functions
-from .decorator import vald8, pytest_for_llms, llm_test
+from .decorator import llm_expect, pytest_for_llms, llm_test
 
 # Data models
 from .models import (
@@ -15,13 +15,13 @@ from .models import (
     EvaluationSummary,
     TestResult,
     MetricResult, 
-    Vald8Config,
+    LLMExpectConfig,
     JudgeConfig
 )
 
 # Error types
 from .errors import (
-    Vald8Error,
+    LLMExpectError,
     ValidationError, 
     DatasetValidationError, 
     ConfigurationError,
@@ -38,11 +38,11 @@ from .results import ResultsManager
 __version__ = "0.1.5"
 __author__ = "Alex Thorpe"
 __license__ = "MIT"
-__description__ = "Vald8 is a minimalist, developer-first SDK for testing LLM-powered Python functions using structured JSONL datasets."
+__description__ = "LLM Expect is a minimalist, developer-first SDK for testing LLM-powered Python functions using structured JSONL datasets."
 
 __all__ = [
     # Core decorator
-    "vald8",
+    "llm_expect",
     "pytest_for_llms", 
     "llm_test",
     
@@ -52,11 +52,11 @@ __all__ = [
     "EvaluationSummary",
     "TestResult",
     "MetricResult",
-    "Vald8Config",
+    'LLMExpectConfig',
     "JudgeConfig",
     
     # Error types
-    "Vald8Error",
+    "LLMExpectError",
     "ValidationError",
     "DatasetValidationError", 
     "ConfigurationError",

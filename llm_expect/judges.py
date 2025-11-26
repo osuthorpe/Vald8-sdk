@@ -1,5 +1,5 @@
 """
-LLM judge provider system for Vald8.
+LLM judge provider system for LLM Expect.
 
 Provides unified interface for different LLM providers (OpenAI, Anthropic, Bedrock)
 to evaluate LLM outputs using LLM-as-judge patterns.

@@ -1,7 +1,7 @@
 
 import pytest
 import os
-from vald8.decorator import vald8
+from llm_expect.decorator import llm_expect
 
 # Create a dummy dataset for testing
 @pytest.fixture
@@ -15,13 +15,13 @@ def class_test_dataset():
 
 class TestClassMethods:
     def test_instance_method_decorator(self, class_test_dataset):
-        """Test that vald8 works on instance methods."""
+        """Test that llm_expect works on instance methods."""
         
         class MyService:
             def __init__(self):
                 self.prefix = "test_"
                 
-            @vald8(dataset=class_test_dataset)
+            @llm_expect(dataset=class_test_dataset)
             def process(self, value):
                 return self.prefix + value
         
@@ -36,9 +36,9 @@ class TestClassMethods:
         assert result["summary"]["passed_tests"] == 1
 
     def test_class_method_decorator(self, class_test_dataset):
-        """Test that vald8 works on class methods (@classmethod)."""
+        """Test that llm_expect works on class methods (@classmethod)."""
         # Note: Decorating @classmethod is tricky because of order of decorators.
-        # Usually @classmethod(@vald8) won't work easily because vald8 returns a Vald8Function, not a function.
+        # Usually @classmethod(@llm_expect) won't work easily because llm_expect returns a LLMExpectFunction, not a function.
         # But let's see if we can support it or if we should just stick to instance methods for now.
         # For now, let's focus on instance methods as that was the user request.
         pass

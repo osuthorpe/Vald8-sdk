@@ -1,38 +1,38 @@
-# 🤖 Vald8 Instructions for LLMs
+# 🤖 LLM Expect Instructions for LLMs
 
-This file contains instructions for AI assistants (Cursor, Copilot, Windsurf, etc.) to correctly implement and use the Vald8 SDK.
+This file contains instructions for AI assistants (Cursor, Copilot, Windsurf, etc.) to correctly implement and use the LLM Expect SDK.
 
 ## 🚀 Core Identity
-**Vald8** is a minimalist Python SDK for evaluating LLM functions using a decorator-based approach and JSONL datasets. It is designed to be as simple as `pytest`.
+**LLM Expect** is a minimalist Python SDK for evaluating LLM functions using a decorator-based approach and JSONL datasets. It is designed to be as simple as `pytest`.
 
 ## 📦 Installation
 ```bash
-pip install vald8
+pip install llm-expect
 ```
 
 ## 🔑 Key Patterns
 
 ### 1. The Decorator Pattern
-Vald8 works by decorating a **standalone function**.
+LLM Expect works by decorating a **standalone function**.
 
 ```python
-from vald8 import vald8
+from llm_expect import llm_expect
 
-@vald8(dataset="tests.jsonl")
+@llm_expect(dataset="tests.jsonl")
 def my_llm_function(prompt: str) -> str:
     # Call LLM here
     return "response"
 ```
 
 ### 2. Class Methods
-Vald8 supports decorating instance methods directly. The decorator handles `self` binding automatically.
+LLM Expect supports decorating instance methods directly. The decorator handles `self` binding automatically.
 
 ```python
 class MyClass:
     def __init__(self):
         self.client = OpenAI()
 
-    @vald8(dataset="tests.jsonl")
+    @llm_expect(dataset="tests.jsonl")
     def generate(self, prompt: str):
         # 'self' is available here!
         return self.client.generate(prompt)
@@ -134,7 +134,7 @@ Uses an LLM to grade the response based on a prompt.
 | `sample_size` | `int` | `None` (All) | Number of examples to sample from the dataset. |
 | `shuffle` | `bool` | `False` | Whether to shuffle examples before sampling. |
 | `cache` | `bool` | `True` | Enable caching of results to avoid re-running passed tests. |
-| `cache_dir` | `str` | `".vald8_cache"` | Directory for cache files. |
+| `cache_dir` | `str` | `".llm_expect_cache"` | Directory for cache files. |
 | `results_dir` | `str` | `"runs"` | Directory to save detailed evaluation results. |
 | `save_results` | `bool` | `True` | Save detailed results to disk |
 | `parallel` | `bool` | `False` | Run tests in parallel (faster for IO-bound) |
@@ -142,46 +142,46 @@ Uses an LLM to grade the response based on a prompt.
 | `timeout` | `int` | `60` | Timeout in seconds for the decorated function execution. |
 
 ### Environment Variables
-All configuration can be overridden by environment variables with the `VALD8_` prefix.
+All configuration can be overridden by environment variables with the `LLM_EXPECT_` prefix.
 
 | Variable | Type | Description |
 |----------|------|-------------|
-| `VALD8_TESTS` | List | Comma-separated metrics (e.g., `"accuracy,safety"`). |
-| `VALD8_THRESHOLD` | Float | Global threshold applied to all metrics. |
-| `VALD8_THRESHOLD_{METRIC}` | Float | Specific threshold for a metric (e.g., `VALD8_THRESHOLD_SAFETY`). |
-| `VALD8_SAMPLE_SIZE` | Int | Number of examples to sample. |
-| `VALD8_SHUFFLE` | Bool | Shuffle examples (`true`/`false`). |
-| `VALD8_CACHE` | Bool | Enable/disable caching. |
-| `VALD8_CACHE_DIR` | Str | Cache directory path. |
-| `VALD8_RESULTS_DIR` | Str | Results directory path. |
-| `VALD8_FAIL_FAST` | Bool | Stop on first failure. |
-| `VALD8_TIMEOUT` | Int | Function timeout in seconds. |
+| `LLM_EXPECT_TESTS` | List | Comma-separated metrics (e.g., `"accuracy,safety"`). |
+| `LLM_EXPECT_THRESHOLD` | Float | Global threshold applied to all metrics. |
+| `LLM_EXPECT_THRESHOLD_{METRIC}` | Float | Specific threshold for a metric (e.g., `LLM_EXPECT_THRESHOLD_SAFETY`). |
+| `LLM_EXPECT_SAMPLE_SIZE` | Int | Number of examples to sample. |
+| `LLM_EXPECT_SHUFFLE` | Bool | Shuffle examples (`true`/`false`). |
+| `LLM_EXPECT_CACHE` | Bool | Enable/disable caching. |
+| `LLM_EXPECT_CACHE_DIR` | Str | Cache directory path. |
+| `LLM_EXPECT_RESULTS_DIR` | Str | Results directory path. |
+| `LLM_EXPECT_FAIL_FAST` | Bool | Stop on first failure. |
+| `LLM_EXPECT_TIMEOUT` | Int | Function timeout in seconds. |
 
 ### Judge Configuration
 For metrics that require an LLM judge (`instruction_adherence`, `safety`, `custom_judge`):
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `VALD8_JUDGE_MODEL` | Judge model name | Provider default (e.g., GPT-4) |
-| `VALD8_JUDGE_API_KEY` | Judge API key | `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` |
-| `VALD8_JUDGE_BASE_URL` | Custom API base URL | Provider default |
-| `VALD8_JUDGE_TIMEOUT` | Judge request timeout | `30` |
-| `VALD8_JUDGE_MAX_RETRIES` | Max retry attempts | `3` |
-| `VALD8_JUDGE_TEMPERATURE` | Judge temperature | `0.0` |
+| `LLM_EXPECT_JUDGE_MODEL` | Judge model name | Provider default (e.g., GPT-4) |
+| `LLM_EXPECT_JUDGE_API_KEY` | Judge API key | `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` |
+| `LLM_EXPECT_JUDGE_BASE_URL` | Custom API base URL | Provider default |
+| `LLM_EXPECT_JUDGE_TIMEOUT` | Judge request timeout | `30` |
+| `LLM_EXPECT_JUDGE_MAX_RETRIES` | Max retry attempts | `3` |
+| `LLM_EXPECT_JUDGE_TEMPERATURE` | Judge temperature | `0.0` |
 
 ### 🧠 Common Pitfalls to Avoid
 
-1.  **Do not mock the LLM inside the decorated function.** Vald8 is for *integration testing* with real LLMs.
-2.  **Do not use `pytest` decorators on the same function.** Vald8 is its own test runner.
+1.  **Do not mock the LLM inside the decorated function.** LLM Expect is for *integration testing* with real LLMs.
+2.  **Do not use `pytest` decorators on the same function.** LLM Expect is its own test runner.
 3.  **JSONL paths.** Ensure the dataset path is relative to where the script is run, or use absolute paths.
 4.  **JSONL paths.** Ensure the dataset path is relative to where the script is run, or use absolute paths.
 
 ## 📝 Complete Example Implementation
 
-Here is a robust example showing how to implement Vald8 with multiple metrics.
+Here is a robust example showing how to implement LLM Expect with multiple metrics.
 
 ```python
-from vald8 import vald8
+from llm_expect import llm_expect
 import os
 from openai import OpenAI
 
@@ -190,7 +190,7 @@ class StoryGenerator:
     def __init__(self):
         self.client = OpenAI()
 
-    @vald8(
+    @llm_expect(
         dataset="stories.jsonl",
         tests=["custom_judge", "safety"],
         judge_provider="openai",

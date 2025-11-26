@@ -1,5 +1,5 @@
 """
-Dataset loading and validation for Vald8.
+Dataset loading and validation for LLM Expect.
 
 Handles JSONL file parsing, validation, and preprocessing for evaluation datasets.
 """

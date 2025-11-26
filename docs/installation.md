@@ -8,22 +8,22 @@
 ## Install from PyPI
 
 ```bash
-pip install vald8
+pip install llm-expect
 ```
 
 ## Install from Source
 
 ```bash
-git clone https://github.com/osuthorpe/vald8.git
-cd vald8
+git clone https://github.com/osuthorpe/llm-expect.git
+cd llm-expect
 pip install -e .
 ```
 
 ## Verify Installation
 
 ```python
-import vald8
-print(vald8.__version__)
+import llm_expect
+print(llm_expect.__version__)
 ```
 
 ## Optional Dependencies
@@ -31,17 +31,17 @@ print(vald8.__version__)
 For development:
 
 ```bash
-pip install vald8[dev]
+pip install "llm-expect[dev]"
 ```
 
 For documentation:
 
 ```bash
-pip install vald8[docs]
+pip install "llm-expect[docs]"
 ```
 
 For everything:
 
 ```bash
-pip install vald8[all]
+pip install llm-expect[all]
 ```

@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-from vald8 import vald8
+from llm_expect import llm_expect
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
@@ -10,7 +10,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 # JudgeProvider uses its own HTTP client internally.
 client = OpenAI(api_key=api_key) if api_key else None
 
-@vald8(
+@llm_expect(
     dataset="examples/datasets/judge.jsonl",
     tests=["custom_judge"],
     judge_provider="openai",
@@ -32,7 +32,7 @@ def judge_correct(prompt: str) -> str:
     return response.choices[0].message.content
 
 
-@vald8(
+@llm_expect(
     dataset="examples/datasets/judge.jsonl",
     tests=["custom_judge"],
     judge_provider="openai",

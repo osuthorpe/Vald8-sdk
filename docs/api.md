@@ -1,11 +1,12 @@
+```
 # API Reference
 
-::: vald8
+::: llm_expect.decorator
     options:
       show_root_heading: true
       show_source: true
       members:
-        - vald8
+        - llm_expect
         - pytest_for_llms
         - llm_test
         - DatasetExample
@@ -13,7 +14,7 @@
         - EvaluationSummary
         - TestResult
         - MetricResult
-        - Vald8Config
+        - LLMExpectConfig
         - JudgeConfig
         - load_dataset
         - validate_dataset_format
