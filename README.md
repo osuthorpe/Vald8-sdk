@@ -44,7 +44,7 @@ pip install llm-expect
 ```
 
 **Package Name:** `llm-expect` on PyPI.
-**Version:** Currently v0.1.8.
+**Version:** Currently v0.1.9.
 
 ---
 
