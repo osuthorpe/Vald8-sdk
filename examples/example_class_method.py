@@ -3,8 +3,7 @@
 Example: Using Vald8 with Class Methods
 
 This example demonstrates how to use the @vald8 decorator with class methods.
-Since @vald8 expects standalone functions, we create a module-level wrapper
-function that delegates to the class method.
+Vald8 supports decorating instance methods directly, handling `self` binding automatically.
 """
 
 import os
@@ -25,6 +24,12 @@ class ReleaseNoteGenerator:
         self.client = OpenAI(api_key=api_key) if api_key else None
         self.model = "gpt-4o-mini"
     
+    @vald8(
+        dataset="examples/datasets/release_notes.jsonl",
+        tests=["custom_judge"],
+        judge_provider="openai",
+        judge_model="gpt-4o-mini"
+    )
     def create_release_note_for_story(
         self, 
         title: str, 
@@ -80,86 +85,6 @@ class ReleaseNoteGenerator:
             return f"<strong>{title}-</strong> Issue resolved."
 
 
-# ============================================================================
-# SOLUTION: Module-level wrapper function for Vald8 evaluation
-# ============================================================================
-
-# Create a module-level instance (lazy initialization)
-_generator_instance = None
-
-def _get_generator():
-    """Lazy initialization of generator instance."""
-    global _generator_instance
-    if _generator_instance is None:
-        _generator_instance = ReleaseNoteGenerator()
-    return _generator_instance
-
-
-# Decorate the module-level function, not the class method
-@vald8(
-    dataset="examples/datasets/release_notes.jsonl",
-    tests=["custom_judge"],
-    judge_provider="openai",
-    judge_model="gpt-4o-mini"
-)
-def create_release_note_for_story(title: str, description: str, labels: List[str]) -> str:
-    """
-    Module-level function for Vald8 evaluation.
-    
-    This function wraps the class method and delegates to it.
-    Vald8 will call this function directly during evaluation.
-    
-    Args:
-        title: The story title
-        description: The story description
-        labels: List of labels associated with the story
-        
-    Returns:
-        A formatted release note as HTML
-    """
-    generator = _get_generator()
-    return generator.create_release_note_for_story(title, description, labels)
-
-
-# ============================================================================
-# Alternative approaches (commented out)
-# ============================================================================
-
-# APPROACH 2: Using @staticmethod
-# If you don't need instance state, you can use @staticmethod:
-"""
-class ReleaseNoteGeneratorStatic:
-    @vald8(
-        dataset="examples/datasets/judge.jsonl",
-        tests=["custom_judge"],
-        judge_provider="openai",
-        judge_model="gpt-4o-mini"
-    )
-    @staticmethod
-    def create_release_note(title: str, description: str, labels: List[str]) -> str:
-        # Implementation here
-        pass
-"""
-
-# APPROACH 3: Using @classmethod
-# If you need to access class-level state:
-"""
-class ReleaseNoteGeneratorClass:
-    model = "gpt-4o-mini"
-    
-    @vald8(
-        dataset="examples/datasets/judge.jsonl",
-        tests=["custom_judge"],
-        judge_provider="openai",
-        judge_model="gpt-4o-mini"
-    )
-    @classmethod
-    def create_release_note(cls, title: str, description: str, labels: List[str]) -> str:
-        # Can access cls.model here
-        pass
-"""
-
-
 if __name__ == "__main__":
     print("🚀 Running Class Method Evaluation Example")
     
@@ -169,7 +94,12 @@ if __name__ == "__main__":
     else:
         # Run the evaluation
         print("\n📊 Running Vald8 evaluation...")
-        results = create_release_note_for_story.run_eval()
+        
+        # Create an instance
+        generator = ReleaseNoteGenerator()
+        
+        # Run evaluation on the bound method
+        results = generator.create_release_note_for_story.run_eval()
         
         print(f"\n   Result: {'✅ PASSED' if results['passed'] else '❌ FAILED'}")
         print(f"   Success Rate: {results['summary']['success_rate']:.1%}")
@@ -179,7 +109,6 @@ if __name__ == "__main__":
         
         # You can also use the class directly for normal usage
         print("\n💼 Using the class directly (outside of evaluation):")
-        generator = ReleaseNoteGenerator()
         note = generator.create_release_note_for_story(
             title="Fix login crash",
             description="Fixed a crash on login screen when user enters empty password.",

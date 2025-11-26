@@ -10,6 +10,11 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
+
 from .config import config_manager
 from .dataset import validate_dataset_format
 from .errors import Vald8Error
@@ -42,83 +47,148 @@ def validate_dataset_cmd(args) -> int:
 
 def list_runs_cmd(args) -> int:
     """List evaluation runs command."""
+    console = Console()
     try:
         results_manager = ResultsManager(args.results_dir)
         runs = results_manager.list_runs(limit=args.limit)
         
         if not runs:
-            print("No evaluation runs found.")
+            console.print("[yellow]No evaluation runs found.[/yellow]")
             return 0
         
-        print(f"Recent evaluation runs (showing {len(runs)}):\n")
+        console.print(f"\n[bold]Recent Evaluation Runs[/bold] (showing {len(runs)})\n")
+        
+        table = Table(show_header=True, header_style="bold magenta")
+        table.add_column("Status", justify="center")
+        table.add_column("Function", style="cyan")
+        table.add_column("Date", style="dim")
+        table.add_column("Success Rate", justify="right")
+        table.add_column("Tests", justify="right")
+        table.add_column("Run ID", style="dim")
         
         for run in runs:
-            status = "✅ PASSED" if run['passed'] else "❌ FAILED"
-            timestamp = run.get('timestamp', '')[:19]  # Remove microseconds
+            status = "[green]PASSED[/green]" if run['passed'] else "[red]FAILED[/red]"
+            timestamp = run.get('timestamp', '')[:19]
             success_rate = run.get('success_rate', 0) * 100
             
-            print(f"{status} {run['function_name']} ({timestamp})")
-            print(f"  Run ID: {run['run_id'][:8]}")
-            print(f"  Dataset: {run['dataset_path']}")
-            print(f"  Tests: {run.get('total_tests', 0)} (Success: {success_rate:.1f}%)")
-            print(f"  Results: {run['run_dir']}")
-            print()
-        
+            # Colorize success rate
+            rate_str = f"{success_rate:.1f}%"
+            if success_rate >= 90:
+                rate_str = f"[green]{rate_str}[/green]"
+            elif success_rate >= 70:
+                rate_str = f"[yellow]{rate_str}[/yellow]"
+            else:
+                rate_str = f"[red]{rate_str}[/red]"
+            
+            table.add_row(
+                status,
+                run['function_name'],
+                timestamp,
+                rate_str,
+                str(run.get('total_tests', 0)),
+                run['run_id'][:8]
+            )
+            
+        console.print(table)
+        console.print()
         return 0
         
     except Vald8Error as e:
-        print(f"❌ Failed to list runs: {e}")
+        console.print(f"[bold red]Failed to list runs:[/bold red] {e}")
         return 1
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        console.print(f"[bold red]Unexpected error:[/bold red] {e}")
         return 1
 
 
 def show_run_cmd(args) -> int:
     """Show detailed run information command."""
+    console = Console()
     try:
         results_manager = ResultsManager()
         result = results_manager.load_results(args.run_dir)
         
-        print(f"# Vald8 Evaluation Run Details\n")
-        print(f"**Function:** {result.function_name}")
-        print(f"**Dataset:** {result.dataset_path}")
-        print(f"**Status:** {'✅ PASSED' if result.passed else '❌ FAILED'}")
-        print(f"**Run ID:** {result.run_id}")
-        print(f"**Timestamp:** {result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+        # Header
+        status_color = "green" if result.passed else "red"
+        status_text = "PASSED" if result.passed else "FAILED"
         
-        # Summary
+        console.print(Panel(
+            f"[bold {status_color}]{status_text}[/bold {status_color}] - {result.function_name}",
+            title="Vald8 Evaluation Run",
+            subtitle=result.run_id
+        ))
+        
+        # Metadata
+        grid = Table.grid(padding=1)
+        grid.add_column(style="bold")
+        grid.add_column()
+        grid.add_row("Dataset:", result.dataset_path)
+        grid.add_row("Timestamp:", result.timestamp.strftime('%Y-%m-%d %H:%M:%S'))
+        grid.add_row("Results Dir:", str(result.run_dir))
+        console.print(grid)
+        console.print()
+        
+        # Summary Table
         s = result.summary
-        print(f"\n## Summary")
-        print(f"- Total Tests: {s.total_tests}")
-        print(f"- Passed: {s.passed_tests} ({s.success_rate:.1%})")
-        print(f"- Failed: {s.failed_tests}")
-        print(f"- Errors: {s.error_tests}")
-        print(f"- Total Time: {s.total_time:.2f}s")
+        summary_table = Table(title="Summary", show_header=True)
+        summary_table.add_column("Metric")
+        summary_table.add_column("Value")
         
-        # Metrics
+        summary_table.add_row("Total Tests", str(s.total_tests))
+        summary_table.add_row("Passed", f"[green]{s.passed_tests}[/green]")
+        summary_table.add_row("Failed", f"[red]{s.failed_tests}[/red]")
+        summary_table.add_row("Errors", f"[yellow]{s.error_tests}[/yellow]")
+        summary_table.add_row("Success Rate", f"{s.success_rate:.1%}")
+        summary_table.add_row("Total Time", f"{s.total_time:.2f}s")
+        
+        console.print(summary_table)
+        
+        # Metrics Table
         if s.metrics:
-            print(f"\n## Metrics")
+            console.print()
+            metrics_table = Table(title="Metrics Breakdown", show_header=True)
+            metrics_table.add_column("Metric")
+            metrics_table.add_column("Mean Score")
+            metrics_table.add_column("Min")
+            metrics_table.add_column("Max")
+            
             for metric_name, stats in s.metrics.items():
-                print(f"- **{metric_name.title()}:** {stats.get('mean', 0):.2f} (min: {stats.get('min', 0):.2f}, max: {stats.get('max', 0):.2f})")
+                metrics_table.add_row(
+                    metric_name.title(),
+                    f"{stats.get('mean', 0):.2f}",
+                    f"{stats.get('min', 0):.2f}",
+                    f"{stats.get('max', 0):.2f}"
+                )
+            console.print(metrics_table)
         
-        # Failed tests (if any)
+        # Failed Tests
         failed_tests = [t for t in result.tests if not t.passed]
         if failed_tests:
-            print(f"\n## Failed Tests ({len(failed_tests)})")
-            for test in failed_tests[:5]:  # Show first 5
-                print(f"- **{test.test_id}:** {test.error or 'Metric thresholds not met'}")
+            console.print(f"\n[bold red]Failed Tests ({len(failed_tests)})[/bold red]")
             
-            if len(failed_tests) > 5:
-                print(f"  ... and {len(failed_tests) - 5} more")
+            for i, test in enumerate(failed_tests):
+                if i >= 5:
+                    console.print(f"[dim]... and {len(failed_tests) - 5} more[/dim]")
+                    break
+                    
+                error_msg = test.error or "Metric thresholds not met"
+                
+                # Create a mini-table for the failure
+                fail_panel = Panel(
+                    f"[bold]Input:[/bold] {test.input}\n"
+                    f"[bold]Error:[/bold] [red]{error_msg}[/red]",
+                    title=f"Test ID: {test.test_id}",
+                    border_style="red"
+                )
+                console.print(fail_panel)
         
         return 0
         
     except Vald8Error as e:
-        print(f"❌ Failed to load run: {e}")
+        console.print(f"[bold red]Failed to load run:[/bold red] {e}")
         return 1
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        console.print(f"[bold red]Unexpected error:[/bold red] {e}")
         return 1
 
 

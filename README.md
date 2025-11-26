@@ -120,10 +120,21 @@ python examples/example_safety_openai.py
 python examples/example_judge_openai.py
 ```
 
-These scripts will:
 1.  Load the evaluation dataset from `examples/eval_dataset.jsonl`.
 2.  Run evaluations on the respective models.
 3.  Output pass/fail results and success rates.
+
+### 🖥️ Rich CLI
+
+Vald8 includes a beautiful CLI for managing results:
+
+```bash
+# List recent runs
+vald8 runs list
+
+# Show detailed results for a run
+vald8 runs show runs/2025-11-25_...
+```
 
 ---
 
@@ -213,7 +224,7 @@ Vald8 supports configuration through decorator parameters and environment variab
     fail_fast=False,                       # Optional: Stop on first failure (default: False)
     timeout=60,                            # Optional: Function timeout in seconds
     save_results=True,                     # Optional: Save detailed results (default: True)
-    parallel=False                         # Optional: Parallel execution (future)
+    parallel=False                         # Optional: Run tests in parallel (default: False)
 )
 ```
 
@@ -303,7 +314,12 @@ Useful for long-form or fuzzy outputs.
 ```python
 @vald8(
     dataset="tests.jsonl",
-    judge_provider="openai"   # or "anthropic", "local"
+    tests=["schema", "contains", "reference"],
+    thresholds={"success_rate": 0.9},
+    sample_size=None,
+    cache=False,
+    judge_provider=None,
+    parallel=True,
 )
 def summarize(text: str) -> str:
     return llm_summarize(text)
@@ -340,21 +356,54 @@ runs/
 
 ---
 
-# Configuration Options
+# ⚙️ Configuration Reference
 
-```python
-@vald8(
-    dataset="tests.jsonl",
-    tests=["schema", "contains", "reference"],
-    thresholds={"success_rate": 0.9},
-    sample_size=None,
-    cache=False,
-    judge_provider=None,
-)
-```
+## Decorator Arguments
 
-All parameters are optional.
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `dataset` | `str` | **Required** | Path to JSONL file (relative or absolute). |
+| `tests` | `list[str]` | `[]` | Metrics to evaluate: `["accuracy", "schema_fidelity", "safety", "custom_judge"]`. |
+| `thresholds` | `dict` | `{"accuracy": 0.8}` | Pass/fail thresholds per metric. |
+| `judge_provider` | `str` | `None` | LLM judge provider: `"openai"`, `"anthropic"`, `"bedrock"`. |
+| `judge_model` | `str` | Provider default | Specific model for the judge (e.g., `"gpt-4"`). |
+| `sample_size` | `int` | `None` (All) | Number of examples to sample from the dataset. |
+| `shuffle` | `bool` | `False` | Whether to shuffle examples before sampling. |
+| `cache` | `bool` | `True` | Enable caching of results to avoid re-running passed tests. |
+| `cache_dir` | `str` | `".vald8_cache"` | Directory for cache files. |
+| `results_dir` | `str` | `"runs"` | Directory to save detailed evaluation results. |
+| `fail_fast` | `bool` | `False` | Stop evaluation immediately on the first failure. |
+| `timeout` | `int` | `60` | Timeout in seconds for the decorated function execution. |
 
+## Environment Variables
+
+All configuration can be overridden by environment variables with the `VALD8_` prefix.
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `VALD8_TESTS` | List | Comma-separated metrics (e.g., `"accuracy,safety"`). |
+| `VALD8_THRESHOLD` | Float | Global threshold applied to all metrics. |
+| `VALD8_THRESHOLD_{METRIC}` | Float | Specific threshold for a metric (e.g., `VALD8_THRESHOLD_SAFETY`). |
+| `VALD8_SAMPLE_SIZE` | Int | Number of examples to sample. |
+| `VALD8_SHUFFLE` | Bool | Shuffle examples (`true`/`false`). |
+| `VALD8_CACHE` | Bool | Enable/disable caching. |
+| `VALD8_CACHE_DIR` | Str | Cache directory path. |
+| `VALD8_RESULTS_DIR` | Str | Results directory path. |
+| `VALD8_FAIL_FAST` | Bool | Stop on first failure. |
+| `VALD8_TIMEOUT` | Int | Function timeout in seconds. |
+
+## Judge Configuration
+
+For metrics that require an LLM judge (`instruction_adherence`, `safety`, `custom_judge`):
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VALD8_JUDGE_MODEL` | Judge model name | Provider default (e.g., GPT-4) |
+| `VALD8_JUDGE_API_KEY` | Judge API key | `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` |
+| `VALD8_JUDGE_BASE_URL` | Custom API base URL | Provider default |
+| `VALD8_JUDGE_TIMEOUT` | Judge request timeout | `30` |
+| `VALD8_JUDGE_MAX_RETRIES` | Max retry attempts | `3` |
+| `VALD8_JUDGE_TEMPERATURE` | Judge temperature | `0.0` |
 ---
 
 ## 📁 Results Folder Structure
@@ -381,7 +430,8 @@ runs/
 - `results.jsonl`: Line-delimited JSON with each test result
 - `summary.json`: Success rate, metrics, timing stats
 - `metadata.json`: Function name, config, timestamp
-- `report.txt`: Formatted report with failed tests
+- `report.txt`: Formatted text report
+- `report.html`: Visual HTML report with charts and tables
 
 ---
 
