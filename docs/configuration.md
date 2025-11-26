@@ -16,6 +16,7 @@ Configure Vald8 using the `@vald8` decorator:
 | `cache` | `bool` | `True` | Enable caching of results to avoid re-running passed tests. |
 | `cache_dir` | `str` | `".vald8_cache"` | Directory for cache files. |
 | `results_dir` | `str` | `"runs"` | Directory to save detailed evaluation results. |
+| `parallel` | `bool` | `False` | Run tests in parallel (faster for IO-bound) |
 | `fail_fast` | `bool` | `False` | Stop evaluation immediately on the first failure. |
 | `timeout` | `int` | `60` | Timeout in seconds for the decorated function execution. |
 
